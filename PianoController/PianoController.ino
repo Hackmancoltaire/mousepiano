@@ -109,7 +109,7 @@ void OnAppleMidiControlChange(byte channel, byte number, byte value) {
 }
 
 void OnAppleMidiNoteOn(byte channel, byte note, byte velocity) {
-  byte destObjId = note-24;
+  byte destObjId = note-21;
 
   if (destObjId >= 88) { 
     destObjId = 87;

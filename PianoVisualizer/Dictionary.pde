@@ -95,9 +95,8 @@ class Dictionary extends VisualItem {
   color textColor;
   int circleSize = 30;
 
-  Dictionary(int index, boolean keys[], color myColor) {
+  Dictionary(int index, color myColor) {
     keyIndex = index;
-    activeKeys = keys;
     textColor = myColor;
   }
 

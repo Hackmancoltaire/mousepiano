@@ -1,3 +1,5 @@
+final float keys = 88.0;
+
 import themidibus.*; //Import the library
 import java.util.HashMap;
 
@@ -11,12 +13,15 @@ import javax.jmdns.ServiceInfo;
 import processing.net.*;
 import org.apache.commons.codec.binary.Base64;
 
+boolean tweet = false;
+
 MidiBus myBus; // The MidiBus
 VisualItem[] visualItems = new VisualItem[88];
-float keys = 88.0;
-boolean showMessages = false;
+boolean showMessages = true;
 
-int currentVisualization = 9;
+int currentVisualization = 11;
+Visualizer currentVisualizer;
+
 boolean setup = false;
 int screenWidth = 1920;
 int screenHeight = 540;
@@ -60,31 +65,35 @@ void setup() {
     thread("repositionCanvas");
   }
 
-  try {
-    jmdns = JmDNS.create();
+  if (tweet) {
+    try {
+      jmdns = JmDNS.create();
 
-    final HashMap<String, String> values = new HashMap<String, String>();
-    values.put("DvNm", "Android-");
-    values.put("RemV", "10000");
-    values.put("DvTy", "iPod");
-    values.put("RemN", "Remote");
-    values.put("txtvers", "1");
+      final HashMap<String, String> values = new HashMap<String, String>();
+      values.put("DvNm", "Android-");
+      values.put("RemV", "10000");
+      values.put("DvTy", "iPod");
+      values.put("RemN", "Remote");
+      values.put("txtvers", "1");
 
-    pairservice = ServiceInfo.create(REMOTE_TYPE, name, port, 0, 0, values);
-    jmdns.registerService(pairservice);
-  } 
-  catch (IOException e) {
-    e.printStackTrace();
+      pairservice = ServiceInfo.create(REMOTE_TYPE, name, port, 0, 0, values);
+      jmdns.registerService(pairservice);
+    } 
+    catch (IOException e) {
+      e.printStackTrace();
+    }
+
+    myServer = new Server(this, port);
+    currentTweet = null;
   }
-
-  myServer = new Server(this, port);
-  currentTweet = null;
 
   setupVisualizer();
 }
 
 void repositionCanvas() {
-  while (!frame.isVisible ())  delay(2);
+  while (!frame.isVisible ()) {  
+    delay(2);
+  }
   frame.setSize(1920, 540);
   frame.setLocation(0, -270);
 }
@@ -112,10 +121,6 @@ void setupVisualizer() {
 
   colorSetCount = colorSets.length;
 
-  float increment = width / keys;
-  color startColor = colorSets[currentColorSet][0];
-  color endColor = colorSets[currentColorSet][1];
-
   // One Time Setup
   switch(currentVisualization) {
   default:
@@ -123,40 +128,16 @@ void setupVisualizer() {
     break;
   }
 
-  // Object setups
-  for (int i=0; i < keys; i++) {
-    float lerpAmount = (1/keys) * i;
-
+  if (currentVisualization < 10) {
+    // 1-9 are basic visualziers.
+    currentVisualizer = new BasicVisualizer(currentVisualization, colorSets[currentColorSet]);
+  } else {
     switch(currentVisualization) {
-    case 0:
-      visualItems[i] = new Bar(increment, increment*i, lerpColor(startColor, endColor, lerpAmount));
+    case 10:
+      currentVisualizer = new BlurryBubbleVisualizer(colorSets[currentColorSet]);
       break;
-    case 1:
-      visualItems[i] = new BouncingBall(increment*i + (width / keys)/2, height, lerpColor(startColor, endColor, 0.01 * i), screenWidth / keys);
-      break;
-    case 2:
-      visualItems[i] = new ColorCube(i, lerpColor(startColor, endColor, lerpAmount));
-      break;
-    case 3:
-      visualItems[i] = new LineTree(i, lerpColor(startColor, endColor, 0.01 * i));
-      break;
-    case 4:
-      visualItems[int(keys - 1 - i)] = new Ring(i, keys, lerpColor(startColor, endColor, lerpAmount));
-      break;
-    case 5:
-      visualItems[i] = new Dictionary(i, activeKeys, lerpColor(startColor, endColor, 0.01 * i));
-      break;
-    case 6:
-      visualItems[i] = new RippleTriangle(i, lerpColor(startColor, endColor, 0.01 * i));
-      break;
-    case 7:
-      visualItems[i] = new TriangleNoise(lerpColor(startColor, endColor, 0.01 * i));
-      break;
-    case 8:
-      visualItems[i] = new RoamingLine(lerpColor(startColor, endColor, 0.01 * i));
-      break;
-    case 9:
-      visualItems[i] = new ColoredSlash(lerpColor(startColor, endColor, 0.01 * i));
+    case 11:
+      currentVisualizer = new DottedLineVisualizer(colorSets[currentColorSet]);
       break;
     }
   }
@@ -186,6 +167,9 @@ void draw() {
   case 9:
     fill(0, 0, 0, 70);
     break;
+  case 10: 
+    fill(0); 
+    break;  
   default:
     fill(0, 0, 0, 40);
     break;
@@ -194,7 +178,7 @@ void draw() {
   rect(0, 0, width, height);
 
   for (int i=0; i < keys; i++) {
-    visualItems[i].update();
+    currentVisualizer.update(i);
   }
 
   if (textDelay > 0) {
@@ -206,37 +190,40 @@ void draw() {
     textDelay -= 1;
   }
 
-  Client thisClient = myServer.available();
+  if (tweet) {
 
-  if (thisClient !=null) {
-    String whatClientSaid = thisClient.readString();
-    if (whatClientSaid != null) {
-      if (finalString != null) {
-        finalString += whatClientSaid;
-      } else {
-        finalString = whatClientSaid;
-      }
+    Client thisClient = myServer.available();
 
-      //println(thisClient.ip() + ": " + whatClientSaid);
-    }
-  } else {
+    if (thisClient !=null) {
+      String whatClientSaid = thisClient.readString();
+      if (whatClientSaid != null) {
+        if (finalString != null) {
+          finalString += whatClientSaid;
+        } else {
+          finalString = whatClientSaid;
+        }
 
-    if (finalString != null) {
-      if (finalString.indexOf("<b>") != -1) {
-        incomingText = finalString;
-        textDelay = 150;
-      } else {
-        currentTweet = new Tweet(finalString);
-      }
-
-      finalString = null;
-    } else if (currentTweet != null) {
-      if (currentTweet.intensity == 0) {
-        currentTweet = null;
-      } else {
-        currentTweet.draw();
+        //println(thisClient.ip() + ": " + whatClientSaid);
       }
     } else {
+
+      if (finalString != null) {
+        if (finalString.indexOf("<b>") != -1) {
+          incomingText = finalString;
+          textDelay = 150;
+        } else {
+          currentTweet = new Tweet(finalString);
+        }
+
+        finalString = null;
+      } else if (currentTweet != null) {
+        if (currentTweet.intensity == 0) {
+          currentTweet = null;
+        } else {
+          currentTweet.draw();
+        }
+      } else {
+      }
     }
   }
 
@@ -274,6 +261,12 @@ void keyPressed() {
   } else if (key == '0') {
     currentVisualization = 9;
     setupVisualizer();
+  } else if (key == '-') {
+    currentVisualization = 10;
+    setupVisualizer();
+  } else if (key == '=') {
+    currentVisualization = 11;
+    setupVisualizer();
   } else if (key == 'c') {
     if (currentColorSet == colorSetCount-1) { 
       currentColorSet = 0;
@@ -290,11 +283,18 @@ void keyPressed() {
 }
 
 void noteOn(int channel, int pitch, int velocity) {
+  int variance = 0; // Default 24
+  int destObjId;
+  
   if (showMessages) {
-    println("On - Channel:"+channel+" Pitch:"+pitch+" Velocity:"+velocity);
+    if (velocity != 0) {
+      println("On - Channel:"+channel+" Pitch:"+pitch+" Velocity:"+velocity);
+    } else {
+      println("Off - Channel:"+channel+" Pitch:"+pitch+" Velocity:"+velocity);
+    }
   }
 
-  int destObjId = pitch-24;
+  destObjId = pitch - variance;
 
   if (destObjId >= 88) { 
     destObjId = 87;
@@ -304,33 +304,17 @@ void noteOn(int channel, int pitch, int velocity) {
 
   if (setup) {
     if (velocity > 0) {
-      activeKeys[destObjId] = true;
-      visualItems[destObjId].ping();
+      currentVisualizer.setItemIdActive(destObjId, true);
+      currentVisualizer.ping(destObjId);
     } else {
-      activeKeys[destObjId] = false;
-      visualItems[destObjId].pong();
+      currentVisualizer.setItemIdActive(destObjId, false);
+      currentVisualizer.pong(destObjId);
     }
   }
 }
 
 void noteOff(int channel, int pitch, int velocity) {
-  // Receive a noteOff
-  if (showMessages) {
-    println("Off - Channel:"+channel+" Pitch:"+pitch+" Velocity:"+velocity);
-  }
-
-  int destObjId = pitch-24;
-
-  if (destObjId >= 88) { 
-    destObjId = 87;
-  } else if (destObjId <= 0) { 
-    destObjId = 0;
-  }
-
-  if (setup) {
-    activeKeys[destObjId] = false;
-    visualItems[destObjId].pong();
-  }
+  noteOn(channel, pitch, 0);
 }
 
 void controllerChange(int channel, int number, int value) {
@@ -346,14 +330,16 @@ void delay(int time) {
 }
 
 void stop() {
-  jmdns.unregisterService(pairservice);
-  jmdns.unregisterAllServices();
+  if (tweet) {
+    jmdns.unregisterService(pairservice);
+    jmdns.unregisterAllServices();
 
-  try {
-    jmdns.close();
-  } 
-  catch (IOException e) {
-    e.printStackTrace();
+    try {
+      jmdns.close();
+    } 
+    catch (IOException e) {
+      e.printStackTrace();
+    }
   }
 }
 

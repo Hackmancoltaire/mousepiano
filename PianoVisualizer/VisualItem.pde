@@ -1,8 +1,15 @@
 class VisualItem {
- 
- void update() {}
-
-  void ping() {} 
+  public float x,y;
+  public color itemColor;
+  boolean active = false;
   
-  void pong() {}
+  void update() {
+  }
+
+  void ping() {
+  } 
+
+  void pong() {
+  }
 }
+

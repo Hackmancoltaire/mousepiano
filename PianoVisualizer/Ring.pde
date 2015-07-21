@@ -1,7 +1,7 @@
 class Ring extends VisualItem {
   color ringColor;
   int intensity = 0;
-  int decayRate = 50;
+  int decayRate = 20;
   float spacing;
   int keyIndex;
   float innerRing, outerRing;

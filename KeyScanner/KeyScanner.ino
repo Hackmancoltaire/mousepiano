@@ -63,6 +63,8 @@ byte muxChannel[8] = {
   B01111111  // Channel 14 & 15
 };
 
+APPLEMIDI_CREATE_DEFAULT_INSTANCE();
+
 void setup() {
 
 #if FASTADC

@@ -1,10 +1,8 @@
-// Hardware: Mega 2560 R2 + Ethernet Shield
-
-#if defined(ARDUINO) && ARDUINO > 18
-#include <SPI.h>a
-#endif
-
+#include <SPI.h>
 #include <Ethernet.h>
+#include <MemoryFree.h>
+#include <avr/wdt.h>
+
 #include "AppleMidi.h"
 #include "Key.h"
 
@@ -27,10 +25,14 @@ boolean showMessages = false;
 
 class Key;
 Key pianoKeys[numOfRegisterPins];
+boolean sustain = false;
 
 // -----------------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------------
+
+APPLEMIDI_CREATE_DEFAULT_INSTANCE();
+
 void setup() {
   pinMode(SER_Pin, OUTPUT);
   pinMode(RCK_Pin, OUTPUT);
@@ -39,31 +41,21 @@ void setup() {
 
   // Serial communications and wait for port to open:
   Serial.begin(115200);
-  Serial.print("Getting IP...");
+  Serial.print(F("DHCP IP: "));
 
   if (Ethernet.begin(mac) == 0) {
-    Serial.println();
-    Serial.println( "Failed DHCP!" );
+    Serial.println(F("FAILED"));
     for (;;)
       ;
   }
 
-  // print your local IP address:
-  Serial.println();
-  Serial.print("IP: ");
-  for (byte thisByte = 0; thisByte < 4; thisByte++) {
-    // print the value of each byte of the IP address:
-    Serial.print(Ethernet.localIP()[thisByte], DEC);
-    Serial.print(".");
-  }
+  // IP Address
+  Serial.println(Ethernet.localIP());
 
   // Create a session and wait for a remote host to connect to us
-  AppleMIDI.begin("test");
+  AppleMIDI.begin("MousePiano");
 
-  // Actively connect to a remote host
-  // IPAddress host(192, 168, 2, 1);
-  // AppleMIDI.Invite(host, 5004);
-
+  // Setup AppleMIDI Callbacks
   AppleMIDI.OnConnected(OnAppleMidiConnected);
   AppleMIDI.OnDisconnected(OnAppleMidiDisconnected);
 
@@ -73,14 +65,23 @@ void setup() {
 
   digitalWrite(SRCLR_Pin, HIGH);
 
-  //reset all register pins
+  // Reset all register pins
   clearRegisters();
+  
+  // Show available memory
+  Serial.print(F("Available Memory: "));
+  Serial.println(freeMemory());
+  
+  // Enable the watchdog timer
+  wdt_enable(WDTO_1S);
 }
 
 // -----------------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
+
 void loop() {
+  // Reset watchdog timer
+  wdt_reset();
+  
   // Listen to incoming notes
   AppleMIDI.run();
   writeRegisters();
@@ -91,52 +92,83 @@ void loop() {
 // Event handlers for incoming MIDI messages
 // ====================================================================================
 
-void OnAppleMidiConnected(char* name) {
-  Serial.print("C: ");
+void OnAppleMidiConnected(long unsigned int ssrc, char* name) {
+  Serial.print(F("C: "));
   Serial.println(name);
 }
 
-void OnAppleMidiDisconnected() {
-  Serial.println("D");
+void OnAppleMidiDisconnected(long unsigned int ssrc) {
+  Serial.println(F("D"));
   clearRegisters();
 }
 
 void OnAppleMidiControlChange(byte channel, byte number, byte value) {
+  // All Notes Off
   if (number == 123) {
+    Serial.println(F("Received All Notes Off"));
     clearRegisters();
+    Serial.print(F("Available Memory: "));
+    Serial.println(freeMemory());
     delay(20);
+  }
+  // Sustain pedal
+  else if (number == 64) {
+    if (value > 0) {
+      sustain = true;
+    } else {
+      sustain = false;
+    }
   }
 }
 
 void OnAppleMidiNoteOn(byte channel, byte note, byte velocity) {
-  byte destObjId = note-21;
-
-  if (destObjId >= 88) { 
-    destObjId = 87;
-  } 
-  else if (destObjId < 0) { 
-    destObjId = 0;
-  }
-
-  if (velocity > 0) {
-    pianoKeys[destObjId].channelOn(channel);
-  } 
-  else {
-    pianoKeys[destObjId].channelOff(channel);
+  if (channel != 10) {
+    byte destObjId = note-21;
+  
+    if (destObjId >= 88) { 
+      destObjId = 87;
+    } 
+    else if (destObjId < 0) { 
+      destObjId = 0;
+    }
+  
+    if (velocity > 0) {
+      pianoKeys[destObjId].channelOn(channel);
+  
+      if (showMessages) {
+        Serial.print(F("NoteOn: "));
+        Serial.println(destObjId);
+      }
+    } 
+  //  else {
+  //    pianoKeys[destObjId].channelOff(channel);
+  //
+  //    if (showMessages) {
+  //      Serial.print("NoteOff: ");
+  //      Serial.println(destObjId);
+  //    }
+  //  }
   }
 }
 
 void OnAppleMidiNoteOff(byte channel, byte note, byte velocity) {
-  byte destObjId = note-24;
-
-  if (destObjId >= 88) { 
-    destObjId = 87;
-  } 
-  else if (destObjId < 0) { 
-    destObjId = 0;
+  if (channel != 10) {
+    byte destObjId = note-21;
+  
+    if (destObjId >= 88) { 
+      destObjId = 87;
+    } 
+    else if (destObjId < 0) { 
+      destObjId = 0;
+    }
+  
+    pianoKeys[destObjId].channelOff(channel);
+  
+    if (showMessages) {
+      Serial.print(F("NoteOff: "));
+      Serial.println(destObjId);
+    }
   }
-
-  pianoKeys[destObjId].channelOff(channel);
 }
 
 //set all register pins to LOW
@@ -162,7 +194,7 @@ void writeRegisters() {
     }
     
     for (int x = 0; x < 8; x++) {
-        bitWrite(shift, x, pianoKeys[currentNote+x].isOn());
+        bitWrite(shift, x, pianoKeys[currentNote+x].isOn(sustain));
         pianoKeys[currentNote+x].decay();
     }
 

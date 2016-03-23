@@ -12,20 +12,25 @@ import javax.jmdns.JmDNS;
 import javax.jmdns.ServiceInfo;
 import processing.net.*;
 import org.apache.commons.codec.binary.Base64;
+import processing.video.*;
 
 boolean tweet = false;
 
 MidiBus myBus; // The MidiBus
 VisualItem[] visualItems = new VisualItem[88];
+boolean showMessages = false;
 
+int currentVisualization = 14;
 Visualizer currentVisualizer;
 
+boolean sustain = false;
 boolean setup = false;
 int screenWidth = 1920;
 int screenHeight = 540;
 
 String incomingText = "";
 int textDelay = 0;
+PFont standardFont;
 
 boolean[] activeKeys = new boolean[88];
 
@@ -45,6 +50,8 @@ String finalString;
 Tweet currentTweet;
 
 void setup() {
+  size(1920, 540, P3D);
+  standardFont = createFont("Helvetica", 64);
   noCursor();
   background(0);
 
@@ -54,8 +61,10 @@ void setup() {
 
   myBus = new MidiBus(this, 2, 1); // Create a new MidiBus with no input device and the default Java Sound Synthesizer as the output device.
 
+  incomingText = "MousePiano.com";
   textDelay = 50;
 
+  if (frame.isUndecorated()) {
     thread("repositionCanvas");
   }
 
@@ -72,6 +81,7 @@ void setup() {
 
       pairservice = ServiceInfo.create(REMOTE_TYPE, name, port, 0, 0, values);
       jmdns.registerService(pairservice);
+    }
     catch (IOException e) {
       e.printStackTrace();
     }
@@ -84,6 +94,7 @@ void setup() {
 }
 
 void repositionCanvas() {
+  while (!frame.isVisible ()) {
     delay(2);
   }
   frame.setSize(1920, 540);
@@ -97,12 +108,15 @@ void setupVisualizer() {
     {
       color(0, 100, 100), color(99.9, 100, 100)
     }
+    ,
     {
       color(0, 100, 100), color(50, 100, 100)
     }
+    ,
     {
       color(50, 100, 100), color(99.9, 100, 100)
     }
+    ,
     {
       color(0, 100, 100), color(70, 100, 100)
     }
@@ -117,12 +131,25 @@ void setupVisualizer() {
     break;
   }
 
+  if (currentVisualization < 9) {
     // 1-9 are basic visualziers.
     currentVisualizer = new BasicVisualizer(currentVisualization, colorSets[currentColorSet]);
   } else {
     switch(currentVisualization) {
+    case 9:
+      currentVisualizer = new BlurryBubbleVisualizer(colorSets[currentColorSet]); break;
     case 10:
+      currentVisualizer = new DottedLineVisualizer(colorSets[currentColorSet]); break;
     case 11:
+      currentVisualizer = new VZBowieLines(colorSets[currentColorSet]); break;
+    case 12:
+      currentVisualizer = new VZVideoGrid(colorSets[currentColorSet], this); break;
+    case 13:
+      currentVisualizer = new VZWisp(colorSets[currentColorSet]); break;
+	case 14:
+		currentVisualizer = new Dictionary(colorSets[currentColorSet]); break;
+	default:
+	break;
     }
   }
 
@@ -130,11 +157,14 @@ void setupVisualizer() {
 }
 
 void draw() {
+  currentVisualizer.clear(currentVisualization);
 
   for (int i=0; i < keys; i++) {
     currentVisualizer.update(i);
   }
 
+  if (textDelay > 1) {
+    colorMode(RGB, 255);
     fill(255, 255, 255);
     textFont(standardFont);
     textSize(64);
@@ -180,10 +210,12 @@ void draw() {
     }
   }
 
+  delay(currentVisualizer.delay);
 }
 
 void keyPressed() {
   if (key == '1') {
+    currentVisualization = 0;
     setupVisualizer();
   } else if (key == '2') {
     currentVisualization = 1;
@@ -213,11 +245,15 @@ void keyPressed() {
     currentVisualization = 9;
     setupVisualizer();
   } else if (key == '-') {
+    currentVisualization -= 1;
     setupVisualizer();
   } else if (key == '=') {
+    currentVisualization++;
     setupVisualizer();
   } else if (key == 'c') {
+    if (currentColorSet == colorSetCount-1) {
       currentColorSet = 0;
+    } else {
       currentColorSet++;
     }
     setupVisualizer();
@@ -226,11 +262,15 @@ void keyPressed() {
     textDelay = 150;
   } else if (key == 'c') {
     incomingText = "";
+  } else if (key == 'r') {
+    currentVisualizer.clear(0);
   }
 }
 
 void noteOn(int channel, int pitch, int velocity) {
+  int variance = 21; // Default 24
   int destObjId;
+
   if (showMessages) {
     if (velocity != 0) {
       println("On - Channel:"+channel+" Pitch:"+pitch+" Velocity:"+velocity);
@@ -241,7 +281,9 @@ void noteOn(int channel, int pitch, int velocity) {
 
   destObjId = pitch - variance;
 
+  if (destObjId >= 88) {
     destObjId = 87;
+  } else if (destObjId <= 0) {
     destObjId = 0;
   }
 
@@ -265,6 +307,20 @@ void controllerChange(int channel, int number, int value) {
   if (showMessages) {
     println("Controller Change: Channel:"+channel+" Number:"+number+" Value:"+value);
   }
+
+  // All Notes Off
+  if (number == 123) {
+    // When the song is over reset the visualizer.
+    currentVisualizer.clear(0);
+  }
+  // Sustain pedal
+  else if (number == 64) {
+    if (value > 0) {
+      sustain = true;
+    } else {
+      sustain = false;
+    }
+  }
 }
 
 void delay(int time) {
@@ -279,6 +335,7 @@ void stop() {
 
     try {
       jmdns.close();
+    }
     catch (IOException e) {
       e.printStackTrace();
     }

@@ -19,7 +19,7 @@ class Bar extends VisualItem {
       fill(barColor, intensity);
       stroke(0);
     }
-    
+
     strokeWeight(3);
     rect(x, 0, barWidth, height);
 
@@ -34,4 +34,3 @@ class Bar extends VisualItem {
     intensity = 255;
   }
 }
-

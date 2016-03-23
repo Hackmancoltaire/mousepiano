@@ -27,22 +27,47 @@ class BasicVisualizer extends Visualizer {
         addItemWithId(new Ring(i, keys, lerpColor(startColor, endColor, lerpAmount)), int(keys - 1 - i));
         break;
       case 5:
-        //addItemWithId(new Dictionary(i, lerpColor(startColor, endColor, 0.01 * i)), i);
-        break;
-      case 6:
         addItemWithId(new RippleTriangle(i, lerpColor(startColor, endColor, 0.01 * i)), i);
         break;
-      case 7:
+      case 6:
         addItemWithId(new TriangleNoise(lerpColor(startColor, endColor, 0.01 * i)), i);
         break;
-      case 8:
+      case 7:
         addItemWithId(new RoamingLine(lerpColor(startColor, endColor, 0.01 * i)), i);
         break;
-      case 9:
+      case 8:
         addItemWithId(new ColoredSlash(lerpColor(startColor, endColor, 0.01 * i)), i);
         break;
       }
     }
   }
-}
 
+  void clear(int visualizerId) {
+	  colorMode(RGB, 255);
+	  noStroke();
+
+	  switch(currentVisualization) {
+	  case 3:
+	    fill(0);
+	    break;
+	  case 5:
+	    fill(0, 0, 0, 180);
+	    delay(100);
+	    break;
+	  case 7:
+	    fill(0, 0, 0, 10);
+	    break;
+	  case 8:
+	    fill(0, 0, 0, 20);
+	    break;
+	  case 9:
+	    fill(0, 0, 0, 70);
+	    break;
+		default:
+		fill(0, 0, 0, 40);
+		break;
+	}
+
+	rect(0, 0, width, height);
+  }
+}

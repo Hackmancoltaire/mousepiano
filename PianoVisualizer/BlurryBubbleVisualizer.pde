@@ -31,7 +31,6 @@ class BlurryBubbleVisualizer extends Visualizer {
       color endColor = colorSet[1];
 
       for (int i=0; i < keys; i++) {
-        float lerpAmount = (1/keys) * i;
         visualItems[i] = new BlurryBubble(increment*i, height, lerpColor(startColor, endColor, 0.01 * i), screenWidth / keys);
       }
       setup = true;
@@ -90,4 +89,3 @@ class BlurryBubble extends VisualItem {
     }
   }
 }
-

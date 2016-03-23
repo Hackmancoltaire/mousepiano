@@ -1,54 +1,53 @@
 class ColorCube extends VisualItem {
   color cubeColor;
-  float x, y, boxWidth;
+  float boxWidth = screenWidth / 11;
+  float boxHeight = screenHeight / 8;
   float z = 0.0;
   int keyId;
   int intensity = 30;
-  
+
   ColorCube(int keyNumber, color myColor) {
     cubeColor = myColor;
     keyId = keyNumber;
-    
-    boxWidth = sqrt((width * height) / 88);
+
+    setPositionForIndex(keyId);
   }
 
   void update() {
-    setPositionForIndex(keyId);
     pushMatrix();
-    translate(x, y, z);
+    translate(x + (boxWidth/2), y + (boxHeight/2), z);
     fill(cubeColor);
     strokeWeight(1);
     stroke(0);
-    box(boxWidth);
+    //rect(x,y, boxWidth, boxHeight);
+    box(boxWidth, boxHeight, 10);
     popMatrix();
-    
+
     if (z <= 0) {
-       z = 0; 
+      z = 0;
     } else {
-       z -= 1; 
+      z -= 1;
     }
   }
-  
+
   void ping() {
     z += intensity;
   }
-  
+
   void setPositionForIndex(int index) {
     int yLine = 0;
-    float xPosition = index * boxWidth;
-    boolean setupPosition = false;
-    
-    while (!setupPosition) {
-      if (xPosition <= width) {
-        x = xPosition + (boxWidth/2);
-        y = (yLine * boxWidth) + (boxWidth/2);
-        setupPosition = true;
-      } else {
-        xPosition -= width;
-        yLine++; 
+    float xPosition = 0;
+
+    for (int i=0; i < index; i++) {
+      xPosition += boxWidth;
+
+      if ((xPosition + boxWidth) >= width) {
+        xPosition = 0;
+        yLine++;
       }
     }
-    
-    //println(index+": "+x+", "+y);
+
+    x = xPosition;
+    y = yLine * boxHeight;
   }
 }

@@ -17,9 +17,7 @@ boolean tweet = false;
 
 MidiBus myBus; // The MidiBus
 VisualItem[] visualItems = new VisualItem[88];
-boolean showMessages = true;
 
-int currentVisualization = 11;
 Visualizer currentVisualizer;
 
 boolean setup = false;
@@ -28,7 +26,6 @@ int screenHeight = 540;
 
 String incomingText = "";
 int textDelay = 0;
-PFont standardFont = createFont("Helvetica", 64);
 
 boolean[] activeKeys = new boolean[88];
 
@@ -48,7 +45,6 @@ String finalString;
 Tweet currentTweet;
 
 void setup() {
-  size(screenWidth, screenHeight, P3D);
   noCursor();
   background(0);
 
@@ -58,10 +54,8 @@ void setup() {
 
   myBus = new MidiBus(this, 2, 1); // Create a new MidiBus with no input device and the default Java Sound Synthesizer as the output device.
 
-  incomingText = "Welcome to my Piano!";
   textDelay = 50;
 
-  if (frame.isUndecorated()) { 
     thread("repositionCanvas");
   }
 
@@ -78,7 +72,6 @@ void setup() {
 
       pairservice = ServiceInfo.create(REMOTE_TYPE, name, port, 0, 0, values);
       jmdns.registerService(pairservice);
-    } 
     catch (IOException e) {
       e.printStackTrace();
     }
@@ -91,7 +84,6 @@ void setup() {
 }
 
 void repositionCanvas() {
-  while (!frame.isVisible ()) {  
     delay(2);
   }
   frame.setSize(1920, 540);
@@ -105,15 +97,12 @@ void setupVisualizer() {
     {
       color(0, 100, 100), color(99.9, 100, 100)
     }
-    , 
     {
       color(0, 100, 100), color(50, 100, 100)
     }
-    , 
     {
       color(50, 100, 100), color(99.9, 100, 100)
     }
-    , 
     {
       color(0, 100, 100), color(70, 100, 100)
     }
@@ -128,17 +117,12 @@ void setupVisualizer() {
     break;
   }
 
-  if (currentVisualization < 10) {
     // 1-9 are basic visualziers.
     currentVisualizer = new BasicVisualizer(currentVisualization, colorSets[currentColorSet]);
   } else {
     switch(currentVisualization) {
     case 10:
-      currentVisualizer = new BlurryBubbleVisualizer(colorSets[currentColorSet]);
-      break;
     case 11:
-      currentVisualizer = new DottedLineVisualizer(colorSets[currentColorSet]);
-      break;
     }
   }
 
@@ -146,42 +130,11 @@ void setupVisualizer() {
 }
 
 void draw() {
-  colorMode(RGB, 255);
-  noStroke();
-  //translate(0, -270);
-
-  switch(currentVisualization) {
-  case 3:
-    fill(0);
-    break;
-  case 5:
-    fill(0, 0, 0, 180);
-    delay(100);
-    break;  
-  case 7:
-    fill(0, 0, 0, 10);
-    break;
-  case 8:
-    fill(0, 0, 0, 20);
-    break;
-  case 9:
-    fill(0, 0, 0, 70);
-    break;
-  case 10: 
-    fill(0); 
-    break;  
-  default:
-    fill(0, 0, 0, 40);
-    break;
-  }
-
-  rect(0, 0, width, height);
 
   for (int i=0; i < keys; i++) {
     currentVisualizer.update(i);
   }
 
-  if (textDelay > 0) {
     fill(255, 255, 255);
     textFont(standardFont);
     textSize(64);
@@ -227,12 +180,10 @@ void draw() {
     }
   }
 
-  delay(25);
 }
 
 void keyPressed() {
   if (key == '1') {
-    currentVisualization = 0; 
     setupVisualizer();
   } else if (key == '2') {
     currentVisualization = 1;
@@ -262,15 +213,11 @@ void keyPressed() {
     currentVisualization = 9;
     setupVisualizer();
   } else if (key == '-') {
-    currentVisualization = 10;
     setupVisualizer();
   } else if (key == '=') {
-    currentVisualization = 11;
     setupVisualizer();
   } else if (key == 'c') {
-    if (currentColorSet == colorSetCount-1) { 
       currentColorSet = 0;
-    } else { 
       currentColorSet++;
     }
     setupVisualizer();
@@ -283,9 +230,7 @@ void keyPressed() {
 }
 
 void noteOn(int channel, int pitch, int velocity) {
-  int variance = 0; // Default 24
   int destObjId;
-  
   if (showMessages) {
     if (velocity != 0) {
       println("On - Channel:"+channel+" Pitch:"+pitch+" Velocity:"+velocity);
@@ -296,9 +241,7 @@ void noteOn(int channel, int pitch, int velocity) {
 
   destObjId = pitch - variance;
 
-  if (destObjId >= 88) { 
     destObjId = 87;
-  } else if (destObjId <= 0) { 
     destObjId = 0;
   }
 
@@ -336,7 +279,6 @@ void stop() {
 
     try {
       jmdns.close();
-    } 
     catch (IOException e) {
       e.printStackTrace();
     }
@@ -355,4 +297,3 @@ public PImage DecodePImageFromBase64(String i_Image64) throws IOException {
 
   return result;
 }
-

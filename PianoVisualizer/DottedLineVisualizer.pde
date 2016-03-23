@@ -5,19 +5,18 @@ class DottedLineVisualizer extends Visualizer {
     color endColor = colorSet[1];
 
     for (int i=0; i < keys; i++) {
-      float lerpAmount = (1/keys) * i;
       addItemWithId(new Dot(increment*i + (width / keys)/2, height/2, lerpColor(startColor, endColor, 0.01 * i), screenWidth / keys, boolean(i%2)), i);
     }
     setup = true;
   }
 
-  void update(int itemId) {   
+  void update(int itemId) {
     for (int i=0; i < keys - 1; i++) {
       strokeWeight(3);
       stroke(lerpColor(visualItems[i].itemColor, visualItems[i+1].itemColor, 0.5));
       line(visualItems[i].x, visualItems[i].y, visualItems[i+1].x, visualItems[i+1].y);
     }
-   
+
     super.update(itemId);
   }
 }
@@ -64,4 +63,3 @@ class Dot extends VisualItem {
     }
   }
 }
-

@@ -42,7 +42,7 @@ class TriangleNoise extends VisualItem {
 
     noStroke();
     for (int XPos=0; XPos<width; XPos=XPos+boxSize) {
-      for (int YPos=0; YPos<height; YPos=YPos+boxSize) {
+      for (int YPos=0; YPos<screenHeight; YPos=YPos+boxSize) {
         fill(mycolors [int(random(mycolors.length))]);
         triangle(XPos, YPos, XPos, YPos+Spacing, XPos+Spacing, YPos+Spacing);
         fill(mycolors [int(random(mycolors.length))]);
@@ -72,4 +72,3 @@ class TriangleNoise extends VisualItem {
     intensity = 255;
   }
 }
-

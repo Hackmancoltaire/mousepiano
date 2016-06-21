@@ -15,7 +15,7 @@ class BasicVisualizer extends Visualizer {
         addItemWithId(new Bar(increment, increment*i, lerpColor(startColor, endColor, lerpAmount)), i);
         break;
       case 1:
-        addItemWithId(new BouncingBall(increment*i + (width / keys)/2, height, lerpColor(startColor, endColor, 0.01 * i), screenWidth / keys), i);
+        addItemWithId(new BouncingBall(increment*i + (width / keys)/2, screenHeight, lerpColor(startColor, endColor, 0.01 * i), screenWidth / keys), i);
         break;
       case 2:
         addItemWithId(new ColorCube(i, lerpColor(startColor, endColor, lerpAmount)), i);
@@ -43,31 +43,27 @@ class BasicVisualizer extends Visualizer {
   }
 
   void clear(int visualizerId) {
-	  colorMode(RGB, 255);
-	  noStroke();
+    colorMode(RGB, 255);
+    noStroke();
 
-	  switch(currentVisualization) {
-	  case 3:
-	    fill(0);
-	    break;
-	  case 5:
-	    fill(0, 0, 0, 180);
-	    delay(100);
-	    break;
-	  case 7:
-	    fill(0, 0, 0, 10);
-	    break;
-	  case 8:
-	    fill(0, 0, 0, 20);
-	    break;
-	  case 9:
-	    fill(0, 0, 0, 70);
-	    break;
-		default:
-		fill(0, 0, 0, 40);
-		break;
-	}
+    switch(currentVisualization) {
+    case 3:
+      fill(0);
+      break;
+    case 7:
+      fill(0, 0, 0, 10);
+      break;
+    case 8:
+      fill(0, 0, 0, 20);
+      break;
+    case 9:
+      fill(0, 0, 0, 70);
+      break;
+    default:
+      fill(0, 0, 0, 40);
+      break;
+    }
 
-	rect(0, 0, width, height);
+    rect(0, 0, width, height);
   }
 }

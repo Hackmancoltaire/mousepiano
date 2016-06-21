@@ -37,7 +37,7 @@ class VZWisp extends Visualizer {
       colorMode(RGB, 255);
       noStroke();
       fill(0, 0, 0, 8);
-      rect(0, 0, width, height);
+      rect(0, 0, width, screenHeight);
     }
   }
 }

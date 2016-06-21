@@ -5,7 +5,7 @@ class DottedLineVisualizer extends Visualizer {
     color endColor = colorSet[1];
 
     for (int i=0; i < keys; i++) {
-      addItemWithId(new Dot(increment*i + (width / keys)/2, height/2, lerpColor(startColor, endColor, 0.01 * i), screenWidth / keys, boolean(i%2)), i);
+      addItemWithId(new Dot(increment*i + (width / keys)/2, screenHeight/2, lerpColor(startColor, endColor, 0.01 * i), screenWidth / keys, boolean(i%2)), i);
     }
     setup = true;
   }
@@ -38,16 +38,16 @@ class Dot extends VisualItem {
     fill(itemColor);
     noStroke();
 
-    if (isEven && (y < height / 2)) {
-      y = y + (height * intensity);
-    } else if (!isEven && (y > height /2)) {
-      y = y - (height * intensity);
+    if (isEven && (y < screenHeight / 2)) {
+      y = y + (screenHeight * intensity);
+    } else if (!isEven && (y > screenHeight /2)) {
+      y = y - (screenHeight * intensity);
     } else {
-      y = height/2;
+      y = screenHeight/2;
     }
 
-    if (y >= height) {
-      y = height;
+    if (y >= screenHeight) {
+      y = screenHeight;
     } else if (y <= 0) {
       y = 0;
     }
@@ -57,9 +57,9 @@ class Dot extends VisualItem {
 
   void ping() {
     if (isEven) {
-      y = y - (height * (intensity * 10));
+      y = y - (screenHeight * (intensity * 10));
     } else {
-      y = y + (height * (intensity * 10));
+      y = y + (screenHeight * (intensity * 10));
     }
   }
 }

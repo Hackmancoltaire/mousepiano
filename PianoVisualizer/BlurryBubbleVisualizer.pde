@@ -31,7 +31,7 @@ class BlurryBubbleVisualizer extends Visualizer {
       color endColor = colorSet[1];
 
       for (int i=0; i < keys; i++) {
-        visualItems[i] = new BlurryBubble(increment*i, height, lerpColor(startColor, endColor, 0.01 * i), screenWidth / keys);
+        visualItems[i] = new BlurryBubble(increment*i, screenHeight, lerpColor(startColor, endColor, 0.01 * i), screenWidth / keys);
       }
       setup = true;
     }
@@ -72,20 +72,20 @@ class BlurryBubble extends VisualItem {
       currentLife = currentLife + 0.25;
     }
     
-    if (y >= height) {
-      y = height;
+    if (y >= screenHeight) {
+      y = screenHeight;
     } else {
-      y = y + (height * intensity);
+      y = y + (screenHeight * intensity);
     }
   }
 
   void ping() {
     currentLife = 0;
 
-    if (y >= height) {
+    if (y >= screenHeight) {
       y = 0;
     } else {
-      y = y - (height * (intensity * 10));
+      y = y - (screenHeight * (intensity * 10));
     }
   }
 }

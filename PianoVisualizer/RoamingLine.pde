@@ -11,7 +11,7 @@ class RoamingLine extends VisualItem {
     lineColor = myColor;
 
     x = width/2;
-    y = height/2;
+    y = screenHeight/2;
 
     prevX = x;
     prevY = y;
@@ -29,7 +29,7 @@ class RoamingLine extends VisualItem {
         y = prevY;
       }
 
-      if ( y < 0 || y > height) {
+      if ( y < 0 || y > screenHeight) {
         x = prevX;
         y = prevY;
       }
@@ -56,4 +56,3 @@ class RoamingLine extends VisualItem {
     intensity = 255;
   }
 }
-

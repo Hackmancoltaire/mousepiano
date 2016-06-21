@@ -11,7 +11,7 @@ class LineTree extends VisualItem {
   float spacing;
 
   LineTree(int keyID, color myColor) {
-    intensity = (height/2) / 3;
+    intensity = (screenHeight/2) / 3;
     keyIndex = keyID;
     lineColor = myColor;
     yvalues = new float[15];
@@ -31,11 +31,11 @@ class LineTree extends VisualItem {
         x2 = spacing * (x+1);
 
         if (keyIndex % 2 == 0) { 
-          y1 = height/2-yvalues[x];
-          y2 = height/2-yvalues[x+1];
+          y1 = screenHeight/2-yvalues[x];
+          y2 = screenHeight/2-yvalues[x+1];
         } else {
-          y1 = height/2+yvalues[x];
-          y2 = height/2+yvalues[x+1];
+          y1 = screenHeight/2+yvalues[x];
+          y2 = screenHeight/2+yvalues[x+1];
         }
 
         float c1x = x2;
@@ -48,17 +48,17 @@ class LineTree extends VisualItem {
       }
       else {
         if (keyIndex % 2 == 0) { 
-          y1 = height/2-yvalues[x];
+          y1 = screenHeight/2-yvalues[x];
         } else {
-          y1 = height/2+yvalues[x];
+          y1 = screenHeight/2+yvalues[x];
         }
         
         line(x1, y1, width, y1);
       }
     }
 
-    if (increase >= height/2) {
-      increase = (height/2)-1;
+    if (increase >= screenHeight/2) {
+      increase = (screenHeight/2)-1;
     } else {
       increase -= 8;
       
@@ -75,8 +75,8 @@ class LineTree extends VisualItem {
   }
 
   void shiftWave(float newValue) {
-    if (newValue > height/2) {
-      newValue = height/2;
+    if (newValue > screenHeight/2) {
+      newValue = screenHeight/2;
     }  
 
     for (int i = 0; i < yvalues.length; i++) {
@@ -88,4 +88,3 @@ class LineTree extends VisualItem {
     }
   }
 }
-

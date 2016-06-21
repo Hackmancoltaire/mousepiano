@@ -20,7 +20,8 @@ MidiBus myBus; // The MidiBus
 VisualItem[] visualItems = new VisualItem[88];
 boolean showMessages = false;
 
-int currentVisualization = 14;
+int currentVisualization = 0;
+int totalVisualizers = 14;
 Visualizer currentVisualizer;
 
 boolean sustain = false;
@@ -49,8 +50,12 @@ String finalString;
 
 Tweet currentTweet;
 
+int gHue = 0;
+
 void setup() {
-  size(1920, 540, P3D);
+  //fullScreen(P3D);
+  size(1920, 1080, P3D);
+
   standardFont = createFont("Helvetica", 64);
   noCursor();
   background(0);
@@ -59,14 +64,10 @@ void setup() {
     MidiBus.list(); // List all available Midi devices on STDOUT. This will show each device's index and name.
   }
 
-  myBus = new MidiBus(this, 2, 1); // Create a new MidiBus with no input device and the default Java Sound Synthesizer as the output device.
+  myBus = new MidiBus(this, 1, 1); // Create a new MidiBus with no input device and the default Java Sound Synthesizer as the output device.
 
   incomingText = "MousePiano.com";
   textDelay = 50;
-
-  if (frame.isUndecorated()) {
-    thread("repositionCanvas");
-  }
 
   if (tweet) {
     try {
@@ -93,14 +94,6 @@ void setup() {
   setupVisualizer();
 }
 
-void repositionCanvas() {
-  while (!frame.isVisible ()) {
-    delay(2);
-  }
-  frame.setSize(1920, 540);
-  frame.setLocation(0, -270);
-}
-
 void setupVisualizer() {
   colorMode(HSB, 100);
 
@@ -123,13 +116,7 @@ void setupVisualizer() {
   };
 
   colorSetCount = colorSets.length;
-
-  // One Time Setup
-  switch(currentVisualization) {
-  default:
-    noLights();
-    break;
-  }
+	noLights();
 
   if (currentVisualization < 9) {
     // 1-9 are basic visualziers.
@@ -137,19 +124,25 @@ void setupVisualizer() {
   } else {
     switch(currentVisualization) {
     case 9:
-      currentVisualizer = new BlurryBubbleVisualizer(colorSets[currentColorSet]); break;
+      currentVisualizer = new BlurryBubbleVisualizer(colorSets[currentColorSet]);
+      break;
     case 10:
-      currentVisualizer = new DottedLineVisualizer(colorSets[currentColorSet]); break;
+      currentVisualizer = new DottedLineVisualizer(colorSets[currentColorSet]);
+      break;
     case 11:
-      currentVisualizer = new VZBowieLines(colorSets[currentColorSet]); break;
+      currentVisualizer = new VZBowieLines(colorSets[currentColorSet]);
+      break;
     case 12:
-      currentVisualizer = new VZVideoGrid(colorSets[currentColorSet], this); break;
+      currentVisualizer = new VZVideoGrid(colorSets[currentColorSet], this);
+      break;
     case 13:
-      currentVisualizer = new VZWisp(colorSets[currentColorSet]); break;
-	case 14:
-		currentVisualizer = new Dictionary(colorSets[currentColorSet]); break;
-	default:
-	break;
+      currentVisualizer = new VZWisp(colorSets[currentColorSet]);
+      break;
+    case 14:
+      currentVisualizer = new Dictionary(colorSets[currentColorSet]);
+      break;
+    default:
+      break;
     }
   }
 
@@ -245,11 +238,15 @@ void keyPressed() {
     currentVisualization = 9;
     setupVisualizer();
   } else if (key == '-') {
-    currentVisualization -= 1;
-    setupVisualizer();
+    if (currentVisualization > 0) {
+      currentVisualization -= 1;
+      setupVisualizer();
+    }
   } else if (key == '=') {
-    currentVisualization++;
-    setupVisualizer();
+    if (currentVisualization < totalVisualizers) {
+      currentVisualization++;
+      setupVisualizer();
+    }
   } else if (key == 'c') {
     if (currentColorSet == colorSetCount-1) {
       currentColorSet = 0;
@@ -308,10 +305,23 @@ void controllerChange(int channel, int number, int value) {
     println("Controller Change: Channel:"+channel+" Number:"+number+" Value:"+value);
   }
 
+  // Hue is based on the modulation wheel
+  if (number == 1) {
+    gHue = value * 2;
+  }
+
+  // Pattern is based on the breath expression channel
+  else if (number == 2) {
+    if (value < totalVisualizers) {
+      currentVisualization = value;
+      setupVisualizer();
+    }
+  }
+
   // All Notes Off
   if (number == 123) {
     // When the song is over reset the visualizer.
-    currentVisualizer.clear(0);
+    currentVisualizer.setAllItemsInactive();
   }
   // Sustain pedal
   else if (number == 64) {

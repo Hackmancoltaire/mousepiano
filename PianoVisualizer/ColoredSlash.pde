@@ -50,12 +50,12 @@ class Slash {
         vertical=random(1)>.5;
  
         x1=x2=(int)random(1, int(width/40)-1)*40;
-        y1=y2=(int)random(1, int(height/40)-1)*40;
+        y1=y2=(int)random(1, int(screenHeight/40)-1)*40;
  
         if(x1<width/2) tarX2=x1+delta;
         else tarX2=x1-delta;
  
-        if(y1<height/2) tarY2=y1+delta;
+        if(y1<screenHeight/2) tarY2=y1+delta;
         else tarY2=y1-delta;
     }
  
@@ -90,4 +90,3 @@ class Slash {
         return value;
     }
 }
-

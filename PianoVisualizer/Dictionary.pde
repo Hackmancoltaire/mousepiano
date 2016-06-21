@@ -104,13 +104,6 @@ class Dictionary extends Visualizer {
 
     setup = true;
   }
-
-  void clear(int itemId) {
-	  colorMode(RGB, 255);
-	  noStroke();
-	  fill(0, 0, 0, 180);
-	  rect(0, 0, width, height);
-  }
 }
 
 class VZWord extends VisualItem {
@@ -172,7 +165,7 @@ class VZWord extends VisualItem {
       }
 
       pushMatrix();
-      translate(width/2, height/2);
+      translate(width/2, screenHeight/2);
       rotate(radians((360.0/88.0) * keyIndex));
       fill(itemColor);
       triangle(0, 0, 500, 20, 500, -20);

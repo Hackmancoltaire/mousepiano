@@ -16,19 +16,18 @@ class BouncingBall extends VisualItem {
     noStroke();
     ellipse(x, y, size, size);
 
-    if (y >= height) {
-      y = height;
+    if (y >= screenHeight) {
+      y = screenHeight;
     } else {
-      y = y + (height * intensity);
+      y = y + (screenHeight * intensity);
     }
   }
 
   void ping() {
-    if (y >= height) {
+    if (y >= screenHeight) {
       y = 0;
     } else {
-      y = y - (height * (intensity * 10));
+      y = y - (screenHeight * (intensity * 10));
     }
   }
 }
-

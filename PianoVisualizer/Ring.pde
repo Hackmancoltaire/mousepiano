@@ -18,9 +18,9 @@ class Ring extends VisualItem {
     //colorMode(RGB, 255);
     fill(ringColor, intensity);
     noStroke();
-    ellipse(width/2, height/2, outerRing, outerRing);
+    ellipse(width/2, screenHeight/2, outerRing, outerRing);
     fill(0);
-    ellipse(width/2, height/2, innerRing, innerRing);
+    ellipse(width/2, screenHeight/2, innerRing, innerRing);
 
     if (intensity <= 0) {
       intensity = 0;
@@ -33,4 +33,3 @@ class Ring extends VisualItem {
     intensity = 255;
   }
 }
-

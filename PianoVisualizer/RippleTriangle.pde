@@ -6,50 +6,47 @@ class RippleTriangle extends VisualItem {
   int yLine = 0;
   float boxWidth;
   boolean setupPosition = false;
+  boolean flipped = false;
+  boolean positionSetup = false;
+
   int intensity = 0;
   float decayRate = 50;
 
   RippleTriangle(int index, color myColor) {
     keyIndex = index;
     triangleColor = myColor;
-
     boxWidth = 160;
-  }
+	flipped = (keyIndex % 2 == 0) ? true:false;
 
-  void update() {
-    boolean flipped = true;
-    setPositionForIndex(keyIndex);
-    colorMode(RGB, 255);
-    fill(triangleColor, intensity);
-    noStroke();
+	setPositionForIndex(keyIndex);
 
-    if (keyIndex % 2 == 0) {
-      flipped = true;
-    } else {
-      flipped = false;
-    }
-
-    if (yLine % 2 == 0) {
+	if (yLine % 2 == 0) {
       flipped = !flipped;
     }
 
-    if (flipped) {
-      // Even
-      p1x = x;
-      p1y = y - boxWidth/2;
-      p2x = x + boxWidth;
-      p2y = y - boxWidth;
-      p3x = x + boxWidth;
-      p3y = y;
-    } else {
-      // Odd
-      p1x = x;
-      p1y = y - boxWidth;
-      p2x = x;
-      p2y = y;
-      p3x = x + boxWidth;
-      p3y = y - boxWidth/2;
-    }
+	p1x = x;
+
+	if (flipped) {
+	  // Even
+	  p1y = y - boxWidth/2;
+	  p2x = x + boxWidth;
+	  p2y = y - boxWidth;
+	  p3x = x + boxWidth;
+	  p3y = y;
+	} else {
+	  // Odd
+	  p1y = y - boxWidth;
+	  p2x = x;
+	  p2y = y;
+	  p3x = x + boxWidth;
+	  p3y = y - boxWidth/2;
+	}
+  }
+
+  void update() {
+    colorMode(RGB, 255);
+    fill(triangleColor, intensity);
+    noStroke();
 
     triangle(p1x, p1y, p2x, p2y, p3x, p3y);
 
@@ -81,4 +78,3 @@ class RippleTriangle extends VisualItem {
     //println(index+": "+x+", "+y);
   }
 }
-

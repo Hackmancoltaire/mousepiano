@@ -23,6 +23,12 @@ class Visualizer {
     visualItems[itemId].pong();
   }
 
+  void setAllItemsInactive() {
+	  for (int i=0; i < keys; i++) {
+		  setItemIdActive(i, false);
+	  }
+  }
+
   void setItemIdActive(int itemId, boolean activeState) {
     if (visualItems[itemId] != null) {
       visualItems[itemId].active = activeState;

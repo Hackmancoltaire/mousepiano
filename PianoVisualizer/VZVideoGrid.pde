@@ -1,4 +1,6 @@
 class VZVideoGrid extends Visualizer {
+  Movie[] videos = new Movie[88];
+
 
   VZVideoGrid(int[] colorSet, PApplet parent) {
     // Get images from the bowie folder
@@ -14,19 +16,13 @@ class VZVideoGrid extends Visualizer {
 
     background(0);
 
+    videos[0] = new Movie(parent, (dataPath("bowie/video") + "/blackstar.3gpp"));
+
     for (int i=0; i < keys; i++) {
-      visualItems[i] = new VZVideo(i, lerpColor(startColor, endColor, 0.01 * i), (dataPath("bowie/video") + "/blackstar.3gpp"), parent);
+      visualItems[i] = new VZVideo(i, lerpColor(startColor, endColor, 0.01 * i), videos[0], parent);
     }
 
     setup = true;
-  }
-
-  void clear(int itemId) {
-	  super.clear(itemId);
-
-	  for (int i=0; i < keys; i++) {
-		  visualItems[i].pong();
-	  }
   }
 }
 
@@ -35,13 +31,12 @@ class VZVideo extends VisualItem {
   float boxHeight = screenHeight / 8;
   int keyId;
   Movie video;
-  boolean active = false;
   boolean displayed = false;
 
-  VZVideo(int keyNumber, color myColor, String movieFilePath, PApplet parent) {
+  VZVideo(int keyNumber, color myColor, Movie myVideo, PApplet parent) {
     itemColor = myColor;
     keyId = keyNumber;
-    video = new Movie(parent, movieFilePath);
+    video = myVideo;
 
     setPositionForIndex(keyId);
   }
@@ -63,15 +58,11 @@ class VZVideo extends VisualItem {
   }
 
   void ping() {
-    //println("Key: " + keyId + " is down");
-    active = true;
     video.loop();
     video.volume(0);
   }
 
   void pong() {
-    //println("Key: " + keyId + " is up");
-    active = false;
     video.pause();
   }
 
@@ -88,7 +79,7 @@ class VZVideo extends VisualItem {
       }
     }
 
-	x = xPosition;
-	y = yLine * boxHeight;
+    x = xPosition;
+    y = yLine * boxHeight;
   }
 }

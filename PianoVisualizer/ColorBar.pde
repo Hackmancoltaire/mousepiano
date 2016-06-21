@@ -21,7 +21,7 @@ class Bar extends VisualItem {
     }
 
     strokeWeight(3);
-    rect(x, 0, barWidth, height);
+    rect(x, 0, barWidth, screenHeight);
 
     if (intensity <= 0) {
       intensity = 0;

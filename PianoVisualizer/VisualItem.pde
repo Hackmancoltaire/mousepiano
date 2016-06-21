@@ -12,4 +12,3 @@ class VisualItem {
   void pong() {
   }
 }
-

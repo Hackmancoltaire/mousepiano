@@ -1,14 +1,11 @@
-// Hardware: Mega 2560 R2 + Ethernet Shield
+#define MOUSEDEBUG 0 // Display General Note Debug Info
+#define LOGICDEBUG 0 // Show additional logic messages
+#define VISUALIZER 0 // Return each key level to be shown by accompanying visualizer
 
-#define MOUSEDEBUG 0
-#define LOGICDEBUG 0
-#define VISUALIZER 0
-
-#if defined(ARDUINO) && ARDUINO > 18
-#include <SPI.h>a
-#endif
-
+#include <SPI.h>
 #include <Ethernet.h>
+#include <avr/wdt.h>
+
 #include "AppleMidi.h"
 
 // Enter a MAC address for your controller below.
@@ -16,6 +13,8 @@
 byte mac[] = {
   0x90, 0xA2, 0xDA, 0x0F, 0x4F, 0xF7
 };
+
+unsigned long delayTime = millis();
 
 #define FASTADC 1
 
@@ -63,7 +62,7 @@ byte muxChannel[8] = {
   B01111111  // Channel 14 & 15
 };
 
-APPLEMIDI_CREATE_DEFAULT_INSTANCE();
+APPLEMIDI_CREATE_DEFAULT_INSTANCE(); // see definition in AppleMidi_Defs.h
 
 void setup() {
 
@@ -84,42 +83,37 @@ void setup() {
   digitalWrite(s2, LOW);
   digitalWrite(s3, LOW);
 
+  // Serial communications and wait for port to open:
   Serial.begin(115200);
-  Serial.print("Getting IP...");
+  Serial.print(F("DHCP IP: "));
 
   if (Ethernet.begin(mac) == 0) {
-    Serial.println();
-    Serial.println( "Failed DHCP!" );
+    Serial.println(F("FAILED"));
     for (;;)
       ;
   }
 
-  // print your local IP address:
-  Serial.println();
-  Serial.print("IP: ");
-  for (byte thisByte = 0; thisByte < 4; thisByte++) {
-    // print the value of each byte of the IP address:
-    Serial.print(Ethernet.localIP()[thisByte], DEC);
-    Serial.print(".");
-  }
+  // IP Address
+  Serial.println(Ethernet.localIP());
 
   // Create a session and wait for a remote host to connect to us
-  AppleMIDI.begin("test");
+  AppleMIDI.begin("Scanner");
 
   // Actively connect to a remote host
-  // IPAddress host(192, 168, 2, 1);
-  // AppleMIDI.Invite(host, 5004);
+  IPAddress remote(10, 0, 0, 4);
+  AppleMIDI.invite(remote, 5004);
 
   AppleMIDI.OnConnected(OnAppleMidiConnected);
   AppleMIDI.OnDisconnected(OnAppleMidiDisconnected);
-
-  AppleMIDI.OnReceiveControlChange(OnAppleMidiControlChange);
 
   for (byte i = 0; i < 88; i++) {
     setDownStateForKey(false, i);
     setGoingDownStateForKey(false, i);
     setSentStateForKey(true, i);
   }
+
+  // Enable the watchdog timer
+  wdt_enable(WDTO_1S);
 }
 
 byte keyHigh = 180;
@@ -132,6 +126,9 @@ int numberOfBoards = 6;
 boolean showMessages = false;
 
 void loop() {
+  // Reset watchdog timer
+  wdt_reset();
+ 
   // Listen to incoming notes
   AppleMIDI.run();
 
@@ -156,7 +153,13 @@ void loop() {
 
   for (byte m = 0; m < 16; m++) {
     switchToChannel(m);
-    delay(2);
+    
+//    // Need to give the LEDs a chance to warm up, but only a couple cycles (2)
+//    for (delayTime = millis(); (millis() - delayTime) > 2;) {
+//      // Do nothing. Just wait. Don't use delay() because it stops other processes.
+//    }
+
+  delay(2);
 
     for (byte i = 0; i < numberOfBoards; i++) {
       byte key = (i * 16) + m;
@@ -165,27 +168,39 @@ void loop() {
       if (key < 88) {
         byte keyPosition = map(analogRead(i), 0, 1023, 0, 255);
 
+        // If keyPosition is higher than our top threshold, then reset it.
         if (keyPosition > keyUp[key]) {
           keyUp[key] = keyPosition;
         }
+
+        // If this is our first time setting the keydown then set it to n% of the keyUp.
         if (keyDown[key] == 0) {
           keyDown[key] = abs(keyUp[key] * 0.8);
         }
+
+        // So that if this is NOT our first time then the new keyDown threshold will be this.
         if (keyPosition < keyDown[key]) {
           keyDown[key] = keyPosition;
         }
 
+        // Set the key position within the upper and lower limit.
         keyPosition = map(keyPosition, keyDown[key], keyUp[key], 0, 255);
 
         if (key == currentPosition && showMessages) {
-          Serial.println("Channe: " + String(i + 1) + " - Key: " + String(key + 1) + " = " + String(keyPosition + 1) + " - " + String(analogRead(i)) + " / " + String(keyUp[key]) + " - " + String(keyDown[key]));
+          Serial.println("Channel: " + String(i + 1) + " - Key: " + String(key + 1) + " = " + String(keyPosition + 1) + " - " + String(analogRead(i)) + " / " + String(keyUp[key]) + " - " + String(keyDown[key]));
         }
 
         if (VISUALIZER) {
-          Serial.print(String(key) + ":" + String(keyPosition));
+          Serial.print(String(key) + ":" + String(keyPosition) + ":");
+
+          if (downStateForKey(key)) {
+            Serial.print("1");
+          } else {
+            Serial.print("0");
+          }
 
           if (key != 87) {
-            Serial.print(",");
+            Serial.print(F(","));
           } else {
             Serial.println();
           }
@@ -208,7 +223,7 @@ void loop() {
             else {
               // Reduce the velocity over time
               byte currentPosition = getKeyPosition(key);
-              
+
               setKeyPosition(key, (currentPosition - 2));
             }
           }
@@ -221,7 +236,7 @@ void loop() {
               setDownStateForKey(false, key);
 
               // We need to announce that we're up!
-              setSentStateForKey(true, key);
+              setSentStateForKey(false, key);
             }
           }
         }
@@ -240,7 +255,9 @@ void loop() {
           }
         }
 
+        // If the key is down
         if (downStateForKey(key)) {
+          // And we haven't announced it
           if (!sentStateForKey(key)) {
             // Send MIDI Note ON with velocity
             if (MOUSEDEBUG) {
@@ -251,7 +268,9 @@ void loop() {
             setDownStateForKey(true, key);
           }
         }
+        // The key is not down
         else {
+          // And we haven't announced it
           if (!sentStateForKey(key)) {
             // Send MIDI Note Off
             if (MOUSEDEBUG) {
@@ -408,18 +427,11 @@ void setKeyPosition(byte key, byte keyPosition) {
 // Event handlers for incoming MIDI messages
 // ====================================================================================
 
-void OnAppleMidiConnected(char* name) {
-  Serial.print("C: ");
+void OnAppleMidiConnected(uint32_t ssrc, char* name) {
+  Serial.print(F("C: "));
   Serial.println(name);
 }
 
-void OnAppleMidiDisconnected() {
-  Serial.println("D");
-}
-
-void OnAppleMidiControlChange(byte channel, byte number, byte value) {
-  if (number == 123) {
-    //clearRegisters();
-    delay(20);
-  }
+void OnAppleMidiDisconnected(uint32_t ssrc) {
+  Serial.println(F("D"));
 }

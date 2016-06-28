@@ -30,9 +30,9 @@ class VZWisp extends Visualizer {
   }
 
   void clear(int someId) {
-    if (textDelay > 0) {
+    if (currentOverlay.textDelay > 0) {
       background(0);
-      textDelay -= 1;
+      currentOverlay.textDelay -= 1;
     } else {
       colorMode(RGB, 255);
       noStroke();

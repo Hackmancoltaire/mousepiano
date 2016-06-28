@@ -20,18 +20,16 @@ MidiBus myBus; // The MidiBus
 VisualItem[] visualItems = new VisualItem[88];
 boolean showMessages = false;
 
+boolean cycleVisualizers = true;
+int lastCycle = millis();
 int currentVisualization = 0;
-int totalVisualizers = 14;
+int totalVisualizers = 13;
 Visualizer currentVisualizer;
 
 boolean sustain = false;
 boolean setup = false;
 int screenWidth = 1920;
 int screenHeight = 540;
-
-String incomingText = "";
-int textDelay = 0;
-PFont standardFont;
 
 boolean[] activeKeys = new boolean[88];
 
@@ -48,7 +46,11 @@ Server myServer;
 int port = 1024;
 String finalString;
 
+PFont standardFont;
+
 Tweet currentTweet;
+
+Overlay currentOverlay = new Overlay();
 
 int gHue = 0;
 
@@ -56,7 +58,8 @@ void setup() {
   //fullScreen(P3D);
   size(1920, 1080, P3D);
 
-  standardFont = createFont("Helvetica", 64);
+  standardFont = createFont("Desdemona", 128, true);
+
   noCursor();
   background(0);
 
@@ -65,9 +68,6 @@ void setup() {
   }
 
   myBus = new MidiBus(this, 1, 1); // Create a new MidiBus with no input device and the default Java Sound Synthesizer as the output device.
-
-  incomingText = "MousePiano.com";
-  textDelay = 50;
 
   if (tweet) {
     try {
@@ -91,32 +91,36 @@ void setup() {
     currentTweet = null;
   }
 
+  currentOverlay.displayMessage("MousePiano.com");
+  currentOverlay.displayPlayMe(true);
   setupVisualizer();
 }
 
 void setupVisualizer() {
+  lastCycle = millis();
+
   colorMode(HSB, 100);
 
   color[][] colorSets = {
     {
       color(0, 100, 100), color(99.9, 100, 100)
     }
-    ,
+    , 
     {
       color(0, 100, 100), color(50, 100, 100)
     }
-    ,
+    , 
     {
       color(50, 100, 100), color(99.9, 100, 100)
     }
-    ,
+    , 
     {
       color(0, 100, 100), color(70, 100, 100)
     }
   };
 
   colorSetCount = colorSets.length;
-	noLights();
+  noLights();
 
   if (currentVisualization < 9) {
     // 1-9 are basic visualziers.
@@ -133,14 +137,14 @@ void setupVisualizer() {
       currentVisualizer = new VZBowieLines(colorSets[currentColorSet]);
       break;
     case 12:
-      currentVisualizer = new VZVideoGrid(colorSets[currentColorSet], this);
-      break;
-    case 13:
       currentVisualizer = new VZWisp(colorSets[currentColorSet]);
       break;
-    case 14:
+    case 13:
       currentVisualizer = new Dictionary(colorSets[currentColorSet]);
       break;
+      //case 14:
+      //  currentVisualizer = new VZVideoGrid(colorSets[currentColorSet], this);
+      //  break;
     default:
       break;
     }
@@ -156,15 +160,7 @@ void draw() {
     currentVisualizer.update(i);
   }
 
-  if (textDelay > 1) {
-    colorMode(RGB, 255);
-    fill(255, 255, 255);
-    textFont(standardFont);
-    textSize(64);
-    textAlign(CENTER);
-    text(incomingText, screenWidth/2, screenHeight/2);
-    textDelay -= 1;
-  }
+  currentOverlay.update();
 
   if (tweet) {
 
@@ -185,8 +181,8 @@ void draw() {
 
       if (finalString != null) {
         if (finalString.indexOf("<b>") != -1) {
-          incomingText = finalString;
-          textDelay = 150;
+          //incomingText = finalString;
+          //textDelay = 150;
         } else {
           currentTweet = new Tweet(finalString);
         }
@@ -200,6 +196,18 @@ void draw() {
         }
       } else {
       }
+    }
+  }
+
+  if (cycleVisualizers) {
+    if (millis() > lastCycle + 60000) {
+      if (currentVisualization < totalVisualizers) {
+        currentVisualization++;
+      } else {
+        currentVisualization = 0;
+      }
+
+      setupVisualizer();
     }
   }
 
@@ -255,12 +263,13 @@ void keyPressed() {
     }
     setupVisualizer();
   } else if (key == 'a') {
-    incomingText = "Would you like hear a song?";
-    textDelay = 150;
-  } else if (key == 'c') {
-    incomingText = "";
-  } else if (key == 'r') {
-    currentVisualizer.clear(0);
+    currentOverlay.displayMessage("Would you like hear a song?");
+  } else if (key == ' ') {
+    currentOverlay.displayMessage("");
+  } else if (key == 'd') {
+    currentOverlay.displayPlayMe(!currentOverlay.showPlayMe);
+  } else if (key == 'k') {
+    cycleVisualizers = !cycleVisualizers;
   }
 }
 
@@ -292,6 +301,8 @@ void noteOn(int channel, int pitch, int velocity) {
       currentVisualizer.setItemIdActive(destObjId, false);
       currentVisualizer.pong(destObjId);
     }
+
+    currentOverlay.ping();
   }
 }
 

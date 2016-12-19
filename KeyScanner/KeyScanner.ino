@@ -99,10 +99,6 @@ void setup() {
   // Create a session and wait for a remote host to connect to us
   AppleMIDI.begin("Scanner");
 
-  // Actively connect to a remote host
-  IPAddress remote(10, 0, 0, 4);
-  AppleMIDI.invite(remote, 5004);
-
   AppleMIDI.OnConnected(OnAppleMidiConnected);
   AppleMIDI.OnDisconnected(OnAppleMidiDisconnected);
 
@@ -124,10 +120,19 @@ int currentPosition = 0;
 int numberOfBoards = 6;
 
 boolean showMessages = false;
+boolean isConnected = false;
+int lastRetry = 0;
 
 void loop() {
   // Reset watchdog timer
   wdt_reset();
+
+  if (!isConnected && millis() > lastRetry + 10000) {
+      Serial.println("Attempting connection...");
+      IPAddress remote(10, 0, 0, 4);
+      AppleMIDI.invite(remote, 5004);
+      lastRetry = millis();
+  }
  
   // Listen to incoming notes
   AppleMIDI.run();
@@ -428,10 +433,13 @@ void setKeyPosition(byte key, byte keyPosition) {
 // ====================================================================================
 
 void OnAppleMidiConnected(uint32_t ssrc, char* name) {
+  isConnected = true;
   Serial.print(F("C: "));
   Serial.println(name);
 }
 
 void OnAppleMidiDisconnected(uint32_t ssrc) {
+  isConnected = false;
+  lastRetry = millis();
   Serial.println(F("D"));
 }

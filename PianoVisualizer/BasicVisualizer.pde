@@ -50,6 +50,9 @@ class BasicVisualizer extends Visualizer {
     case 3:
       fill(0);
       break;
+    case 6:
+      fill(0, 0, 0, 10);
+       break;
     case 7:
       fill(0, 0, 0, 10);
       break;

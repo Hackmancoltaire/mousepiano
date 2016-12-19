@@ -25,8 +25,12 @@ class VZBowieLines extends Visualizer {
     setup = true;
   }
 
-  void update(int itemId) {
-    visualItems[itemId].update();
+  void update() {
+    for (int i=0; i < keys; i++) {
+      if (visualItems[i] != null) {
+        visualItems[i].update();
+      }
+    }
   }
 
   void ping(int itemId) {

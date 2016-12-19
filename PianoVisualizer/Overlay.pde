@@ -40,7 +40,8 @@ class Overlay {
 	      textDelay -= 1;
 	    }
 
-		if (millis() > (lastPlay + 20000) && showPlayMe) {
+		if (showPlayMe && millis() > (lastPlay + 20000)) {
+      tint(255);
 			image(playMeImage, 0, 0);
 		}
  	}

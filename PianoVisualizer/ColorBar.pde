@@ -23,11 +23,13 @@ class Bar extends VisualItem {
     strokeWeight(3);
     rect(x, 0, barWidth, screenHeight);
 
-    if (intensity <= 0) {
-      intensity = 0;
-    } else {
-      intensity -= decayRate;
-    }
+	if (intensity <= 0) {
+	  intensity = 0;
+	} else {
+	  if (!active) {
+		intensity -= decayRate;
+	  }
+	}
   }
 
   void ping() {

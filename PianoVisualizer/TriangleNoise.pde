@@ -1,9 +1,9 @@
 class TriangleNoise extends VisualItem {
-  int Spacing = 30;
+  int Spacing = 40;
   int XPos = 0;
   int YPos= 0;
 
-  int boxSize = 60; 
+  int boxSize = 80; 
   color[] startColors = {
     color(1, 0), 
     color(1, 0), 

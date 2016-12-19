@@ -9,10 +9,12 @@ class Visualizer {
     visualItems[itemId] = item;
   }
 
-  void update(int itemId) {
-     if (visualItems[itemId] != null) {
-        visualItems[itemId].update();
-     }
+  void update() {
+	  for (int i=0; i < keys; i++) {
+		  if (visualItems[i] != null) {
+             visualItems[i].update();
+          }
+	 }
   }
 
   void ping(int itemId) {
@@ -48,7 +50,7 @@ class Visualizer {
 	  int activeItemCount = 0;
 
 	  for (int i=0; i < itemCount; i++) {
-		  if (visualItems[i].active) {
+		  if (visualItems[i] != null && visualItems[i].active) {
 			  activeItemCount++;
 		  }
 	  }

@@ -20,10 +20,10 @@ MidiBus myBus; // The MidiBus
 VisualItem[] visualItems = new VisualItem[88];
 boolean showMessages = false;
 
-boolean cycleVisualizers = true;
+boolean cycleVisualizers = false;
 int lastCycle = millis();
-int currentVisualization = 0;
-int totalVisualizers = 13;
+int currentVisualization = 16;
+int totalVisualizers = 16;
 Visualizer currentVisualizer;
 
 boolean sustain = false;
@@ -57,6 +57,7 @@ int gHue = 0;
 void setup() {
   //fullScreen(P3D);
   size(1920, 1080, P3D);
+  frameRate(60);
 
   standardFont = createFont("Desdemona", 128, true);
 
@@ -105,15 +106,15 @@ void setupVisualizer() {
     {
       color(0, 100, 100), color(99.9, 100, 100)
     }
-    , 
+    ,
     {
       color(0, 100, 100), color(50, 100, 100)
     }
-    , 
+    ,
     {
       color(50, 100, 100), color(99.9, 100, 100)
     }
-    , 
+    ,
     {
       color(0, 100, 100), color(70, 100, 100)
     }
@@ -142,9 +143,18 @@ void setupVisualizer() {
     case 13:
       currentVisualizer = new Dictionary(colorSets[currentColorSet]);
       break;
-      //case 14:
-      //  currentVisualizer = new VZVideoGrid(colorSets[currentColorSet], this);
-      //  break;
+	case 14:
+		currentVisualizer = new VZCosmos();
+		break;
+	case 15:
+		currentVisualizer = new VZPointTriangle(colorSets[currentColorSet]);
+		break;
+  case 16:
+    currentVisualizer = new VZRippleWall(colorSets[currentColorSet]);
+    break;
+    //case 14:
+    //  currentVisualizer = new VZVideoGrid(colorSets[currentColorSet], this);
+    //  break;
     default:
       break;
     }
@@ -155,15 +165,10 @@ void setupVisualizer() {
 
 void draw() {
   currentVisualizer.clear(currentVisualization);
-
-  for (int i=0; i < keys; i++) {
-    currentVisualizer.update(i);
-  }
-
+  currentVisualizer.update();
   currentOverlay.update();
 
   if (tweet) {
-
     Client thisClient = myServer.available();
 
     if (thisClient !=null) {

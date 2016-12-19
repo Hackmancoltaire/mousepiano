@@ -10,14 +10,14 @@ class DottedLineVisualizer extends Visualizer {
     setup = true;
   }
 
-  void update(int itemId) {
+  void update() {
     for (int i=0; i < keys - 1; i++) {
       strokeWeight(3);
       stroke(lerpColor(visualItems[i].itemColor, visualItems[i+1].itemColor, 0.5));
       line(visualItems[i].x, visualItems[i].y, visualItems[i+1].x, visualItems[i+1].y);
     }
 
-    super.update(itemId);
+    super.update();
   }
 }
 

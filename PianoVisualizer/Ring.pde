@@ -3,29 +3,29 @@ class Ring extends VisualItem {
   int intensity = 0;
   int decayRate = 20;
   float spacing;
-  int keyIndex;
   float innerRing, outerRing;
 
   Ring(int index, float totalKeys, color myColor) {
     ringColor = myColor;
-    keyIndex = index;
+    keyId = index;
     spacing = (width / totalKeys);
-    innerRing = (spacing * keyIndex);
-    outerRing = innerRing + (spacing * .9);
+    outerRing = (spacing * keyId) + (spacing * .9);
   }
 
   void update() {
-    //colorMode(RGB, 255);
-    fill(ringColor, intensity);
-    noStroke();
-    ellipse(width/2, screenHeight/2, outerRing, outerRing);
-    fill(0);
-    ellipse(width/2, screenHeight/2, innerRing, innerRing);
-
+	  if (intensity > 0) {
+		noFill();
+	    stroke(ringColor, intensity);
+	    strokeWeight(11);
+	    ellipse(width/2, screenHeight/2, outerRing, outerRing);
+	}
+	
     if (intensity <= 0) {
       intensity = 0;
     } else {
-      intensity -= decayRate;
+      if (!active) {
+        intensity -= decayRate;
+      }
     }
   }
 

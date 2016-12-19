@@ -14,7 +14,7 @@ class BlurryBubbleVisualizer extends Visualizer {
   //visualItems[i] = new BlurryBubble(increment*i + (width / keys)/2, height, lerpColor(startColor, endColor, 0.01 * i), screenWidth / keys);
 
   //  BlurryBubble(float startX, float startY, color myColor, float mySize) {
-  BlurryBubbleVisualizer(int[] colorSet) {    
+  BlurryBubbleVisualizer(int[] colorSet) {
     if (!setup) {
       for (int i=0; i < blurStateCount; i++) {
         blurStates[i] = createGraphics(200, 200, P3D);
@@ -37,15 +37,20 @@ class BlurryBubbleVisualizer extends Visualizer {
     }
   }
 
-  void update(int itemId) {
-    visualItems[itemId].update(blurStates);
+  void update() {
+    for (int i=0; i < keys; i++) {
+      if (visualItems[i] != null) {
+        visualItems[i].update(blurStates);
+      }
+    }
   }
-  
+
   void ping(int itemId) {
     visualItems[itemId].ping();
   }
-  
-  void pong(int itemId) { }
+
+  void pong(int itemId) {
+  }
 }
 
 class BlurryBubble extends VisualItem {
@@ -64,14 +69,14 @@ class BlurryBubble extends VisualItem {
     size = 100;
   }
 
-  void update(PGraphics[] blurStates) { 
+  void update(PGraphics[] blurStates) {
     if (currentLife < maxLife) {
-       tint(ballColor, 255 - ((255/maxLife) * currentLife));    
-       image(blurStates[int(currentLife)], x, y);
+      tint(ballColor, 255 - ((255/maxLife) * currentLife));
+      image(blurStates[int(currentLife)], x, y);
 
       currentLife = currentLife + 0.25;
     }
-    
+
     if (y >= screenHeight) {
       y = screenHeight;
     } else {

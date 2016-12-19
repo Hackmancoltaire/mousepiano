@@ -53,7 +53,9 @@ class RippleTriangle extends VisualItem {
     if (intensity <= 0) {
       intensity = 0;
     } else {
-      intensity -= decayRate;
+      if (!active) {
+        intensity -= decayRate;
+      }
     }
   }
 

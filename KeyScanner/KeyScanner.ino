@@ -127,12 +127,12 @@ void loop() {
   // Reset watchdog timer
   wdt_reset();
 
-  if (!isConnected && millis() > lastRetry + 10000) {
-      Serial.println("Attempting connection...");
-      IPAddress remote(10, 0, 0, 4);
-      AppleMIDI.invite(remote, 5004);
-      lastRetry = millis();
-  }
+//  if (!isConnected && millis() > lastRetry + 10000) {
+//      Serial.println("Attempting connection...");
+//      IPAddress remote(10, 0, 0, 4);
+//      AppleMIDI.invite(remote, 5004);
+//      lastRetry = millis();
+//  }
  
   // Listen to incoming notes
   AppleMIDI.run();
@@ -268,7 +268,7 @@ void loop() {
             if (MOUSEDEBUG) {
               Serial.println("Midi ON: " + String(key) + " Velocity:" + getKeyPosition(key));
             }
-            AppleMIDI.noteOn(key + 24, getKeyPosition(key), 1);
+            AppleMIDI.noteOn(key + 21, getKeyPosition(key), 1);
             setSentStateForKey(true, key);
             setDownStateForKey(true, key);
           }
@@ -281,7 +281,7 @@ void loop() {
             if (MOUSEDEBUG) {
               Serial.println("Midi OFF: " + String(key) + " Velocity:" + getKeyPosition(key));
             }
-            AppleMIDI.noteOff(key + 24, 0, 1);
+            AppleMIDI.noteOff(key + 21, 0, 1);
             setKeyPosition(key, getKeyPosition(key));
             setSentStateForKey(true, key);
           }

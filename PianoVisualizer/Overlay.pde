@@ -3,8 +3,14 @@
 
 class Overlay {
 	public int textDelay = 0;
-	int textMaxShow = 100;
+	int textMaxShow = 5;
 	String currentText = "";
+
+	color defaultColor = color(255,255,255);
+	int defaultTextSize = 128;
+
+	color currentColor = defaultColor;
+	int currentTextSize = defaultTextSize;
 
 	PImage playMeImage;
 	public boolean showPlayMe = false;
@@ -13,40 +19,45 @@ class Overlay {
 	int lastPlay = millis();
 
 	Overlay() {
-  }
+		playMeImage = loadImage(dataPath("images") + "/frame.png");
+		lastPlay = millis() + 10000;
+	}
 
 	void displayPlayMe(boolean state) {
 		showPlayMe = state;
-	
-    if (playMeImage == null) {
-      println(dataPath("images"));
-      playMeImage = loadImage(dataPath("images") + "/decoFrame.png");
-    }
-}
+	}
+
+	void setTextColor(color newColor) {
+		currentColor = newColor;
+	}
+
+	void setTextSize(int size) {
+		currentTextSize = size;
+	}
 
 	void displayMessage(String message) {
-  		currentText = message;
-		  textDelay = textMaxShow;
+		currentText = message;
+		// Display message for n second
+		textDelay = millis() + (textMaxShow * 1000);
 	}
 
 	void update() {
-		if (textDelay > 1 && currentText != "") {
-	      colorMode(RGB, 255);
-	      fill(255);
-	      textFont(standardFont);
-	      textSize(128);
-	      textAlign(CENTER);
-        text(currentText, screenWidth/2, screenHeight/2);
-	      textDelay -= 1;
-	    }
+		if (textDelay > 1 && currentText != "" && millis() < textDelay) {
+			colorMode(RGB, 255);
+			fill(currentColor);
+			textFont(standardFont);
+			textSize(currentTextSize);
+			textAlign(CENTER);
+			text(currentText, screenWidth/2, screenHeight/2);
+		}
 
-		if (showPlayMe && millis() > (lastPlay + 20000)) {
-      tint(255);
+		if (showPlayMe && millis() > lastPlay) {
+			tint(255);
 			image(playMeImage, 0, 0);
 		}
  	}
 
-	void ping() {
-    lastPlay = millis();
+	void ping(int velocity) {
+		lastPlay = millis() + 10000;
 	}
 }

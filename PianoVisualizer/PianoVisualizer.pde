@@ -1,6 +1,6 @@
 final float keys = 88.0;
 
-import themidibus.*; //Import the library
+import themidibus.*;
 import java.util.HashMap;
 
 import java.io.IOException;
@@ -17,13 +17,15 @@ import processing.video.*;
 boolean tweet = false;
 
 MidiBus myBus; // The MidiBus
-VisualItem[] visualItems = new VisualItem[88];
 boolean showMessages = false;
 
-boolean cycleVisualizers = false;
+// How many seconds before cycling visualizer?
+int cycleTime = 60;
 int lastCycle = millis();
-int currentVisualization = 16;
-int totalVisualizers = 16;
+boolean cycleVisualizers = true;
+
+int currentVisualization = 17;
+int totalVisualizers = 17;
 Visualizer currentVisualizer;
 
 boolean sustain = false;
@@ -31,7 +33,7 @@ boolean setup = false;
 int screenWidth = 1920;
 int screenHeight = 540;
 
-boolean[] activeKeys = new boolean[88];
+boolean[] activeKeys = new boolean[int(keys)];
 
 int currentColorSet = 0;
 int colorSetCount = 0;
@@ -50,7 +52,7 @@ PFont standardFont;
 
 Tweet currentTweet;
 
-Overlay currentOverlay = new Overlay();
+Overlay currentOverlay;
 
 int gHue = 0;
 
@@ -60,15 +62,11 @@ void setup() {
   frameRate(60);
 
   standardFont = createFont("Desdemona", 128, true);
-
+	currentOverlay = new Overlay();
   noCursor();
   background(0);
 
-  if (showMessages) {
-    MidiBus.list(); // List all available Midi devices on STDOUT. This will show each device's index and name.
-  }
-
-  myBus = new MidiBus(this, 1, 1); // Create a new MidiBus with no input device and the default Java Sound Synthesizer as the output device.
+	setupBusConnection(-1);
 
   if (tweet) {
     try {
@@ -94,10 +92,41 @@ void setup() {
 
   currentOverlay.displayMessage("MousePiano.com");
   currentOverlay.displayPlayMe(true);
-  setupVisualizer();
+
+  setupVisualizer(-1);
 }
 
-void setupVisualizer() {
+void setupBusConnection(int inputOverride) {
+	// List all available Midi devices on STDOUT. This will show each device's index and name.
+	MidiBus.list();
+
+	String[] inputs = MidiBus.availableInputs();
+	int likelyInput = 0;
+
+	//	Only search if we haven't been overridden
+	if (inputOverride < 0) {
+		for (int i=0; i < inputs.length; i++) {
+			if (inputs[i].equals("AmeliaTime")) {
+				likelyInput = i;
+			} else if (inputs[i].equals("VMPK Output")) {
+				likelyInput = i;
+				break; // Always use VMPK if present. Likely means local development
+			}
+		}
+	} else {
+		likelyInput = inputOverride;
+	}
+
+	print("Using Input: [" + likelyInput + "] - " + inputs[likelyInput]);
+
+	myBus = new MidiBus(this, likelyInput, 0);
+}
+
+void setupVisualizer(int newCurrentID) {
+	if (newCurrentID > -1) {
+		currentVisualization = newCurrentID;
+	}
+
   lastCycle = millis();
 
   colorMode(HSB, 100);
@@ -149,10 +178,16 @@ void setupVisualizer() {
 	case 15:
 		currentVisualizer = new VZPointTriangle(colorSets[currentColorSet]);
 		break;
-  case 16:
-    currentVisualizer = new VZRippleWall(colorSets[currentColorSet]);
-    break;
-    //case 14:
+	case 16:
+		currentVisualizer = new VZRippleWall(colorSets[currentColorSet]);
+		break;
+	case 17:
+		currentVisualizer = new VZGrowBar(colorSets[currentColorSet]);
+		break;
+	// case xx:
+	// 	currentVisualizer = new VZSpiralWeb(colorSets[currentColorSet]);
+	// 	break;
+    //case xx:
     //  currentVisualizer = new VZVideoGrid(colorSets[currentColorSet], this);
     //  break;
     default:
@@ -205,14 +240,14 @@ void draw() {
   }
 
   if (cycleVisualizers) {
-    if (millis() > lastCycle + 60000) {
+    if (millis() > lastCycle + (cycleTime * 1000)) {
       if (currentVisualization < totalVisualizers) {
         currentVisualization++;
       } else {
         currentVisualization = 0;
       }
 
-      setupVisualizer();
+      setupVisualizer(-1);
     }
   }
 
@@ -221,56 +256,41 @@ void draw() {
 
 void keyPressed() {
   if (key == '1') {
-    currentVisualization = 0;
-    setupVisualizer();
+    setupVisualizer(0);
   } else if (key == '2') {
-    currentVisualization = 1;
-    setupVisualizer();
+    setupVisualizer(1);
   } else if (key == '3') {
-    currentVisualization = 2;
-    setupVisualizer();
+    setupVisualizer(2);
   } else if (key == '4') {
-    currentVisualization = 3;
-    setupVisualizer();
+    setupVisualizer(3);
   } else if (key == '5') {
-    currentVisualization = 4;
-    setupVisualizer();
+    setupVisualizer(4);
   } else if (key == '6') {
-    currentVisualization = 5;
-    setupVisualizer();
+    setupVisualizer(5);
   } else if (key == '7') {
-    currentVisualization = 6;
-    setupVisualizer();
+    setupVisualizer(6);
   } else if (key == '8') {
-    currentVisualization = 7;
-    setupVisualizer();
+    setupVisualizer(7);
   } else if (key == '9') {
-    currentVisualization = 8;
-    setupVisualizer();
+    setupVisualizer(8);
   } else if (key == '0') {
-    currentVisualization = 9;
-    setupVisualizer();
-  } else if (key == '-') {
-    if (currentVisualization > 0) {
-      currentVisualization -= 1;
-      setupVisualizer();
-    }
-  } else if (key == '=') {
-    if (currentVisualization < totalVisualizers) {
-      currentVisualization++;
-      setupVisualizer();
-    }
+    setupVisualizer(9);
+  } else if (key == '-' && (currentVisualization > 0)) {
+  	setupVisualizer(currentVisualization - 1);
+  } else if (key == '=' && (currentVisualization < totalVisualizers)) {
+	  setupVisualizer(currentVisualization + 1);
   } else if (key == 'c') {
     if (currentColorSet == colorSetCount-1) {
       currentColorSet = 0;
     } else {
       currentColorSet++;
     }
-    setupVisualizer();
+    setupVisualizer(-1);
   } else if (key == 'a') {
-    currentOverlay.displayMessage("Would you like hear a song?");
+	currentOverlay.setTextSize(100);
+	currentOverlay.displayMessage("Tweet requests to @mousepiano");
   } else if (key == ' ') {
-    currentOverlay.displayMessage("");
+    currentOverlay.displayMessage(" ");
   } else if (key == 'd') {
     currentOverlay.displayPlayMe(!currentOverlay.showPlayMe);
   } else if (key == 'k') {
@@ -301,18 +321,19 @@ void noteOn(int channel, int pitch, int velocity) {
   if (setup) {
     if (velocity > 0) {
       currentVisualizer.setItemIdActive(destObjId, true);
-      currentVisualizer.ping(destObjId);
+      currentVisualizer.ping(destObjId, velocity);
     } else {
       currentVisualizer.setItemIdActive(destObjId, false);
       currentVisualizer.pong(destObjId);
     }
 
-    currentOverlay.ping();
+    currentOverlay.ping(velocity);
   }
 }
 
 void noteOff(int channel, int pitch, int velocity) {
   noteOn(channel, pitch, 0);
+  currentOverlay.ping(velocity);
 }
 
 void controllerChange(int channel, int number, int value) {
@@ -321,32 +342,35 @@ void controllerChange(int channel, int number, int value) {
     println("Controller Change: Channel:"+channel+" Number:"+number+" Value:"+value);
   }
 
-  // Hue is based on the modulation wheel
-  if (number == 1) {
-    gHue = value * 2;
-  }
-
-  // Pattern is based on the breath expression channel
-  else if (number == 2) {
-    if (value < totalVisualizers) {
-      currentVisualization = value;
-      setupVisualizer();
-    }
-  }
-
-  // All Notes Off
-  if (number == 123) {
-    // When the song is over reset the visualizer.
-    currentVisualizer.setAllItemsInactive();
-  }
-  // Sustain pedal
-  else if (number == 64) {
-    if (value > 0) {
-      sustain = true;
-    } else {
-      sustain = false;
-    }
-  }
+	switch(number) {
+		case 1:
+			// Hue is based on the modulation wheel
+			gHue = value * 2; break;
+		case 2:
+			// Pattern is based on the breath expression channel
+			if (value < totalVisualizers) {
+			setupVisualizer(value);
+			}
+			break;
+		case 3:
+			// Use channel 3 to show the requests message
+			if (value > 0) {
+				currentOverlay.setTextSize(100);
+				currentOverlay.displayMessage("Tweet requests to @mousepiano");
+			}
+			break;
+		case 64:
+			if (value > 0) {
+				sustain = true;
+			} else {
+				sustain = false;
+			}
+			break;
+		case 123:
+			// When the song is over reset the visualizer.
+			currentVisualizer.setAllItemsInactive();
+			break;
+	}
 }
 
 void delay(int time) {

@@ -3,26 +3,26 @@ class TriangleNoise extends VisualItem {
   int XPos = 0;
   int YPos= 0;
 
-  int boxSize = 80; 
+  int boxSize = 80;
   color[] startColors = {
-    color(1, 0), 
-    color(1, 0), 
-    color(1, 0), 
-    color(1, 0), 
-    color(1, 0), 
-    color(1, 0), 
-    color(1, 0), 
-    color(1, 0), 
-    color(1, 0), 
-    color(1, 0), 
-    color(1, 0), 
-    color(1, 0), 
-    color(1, 0), 
-    color(1, 0), 
-    color(1, 0), 
-    color(1, 0), 
-    color(1, 0), 
-    color(1, 0), 
+    color(1, 0),
+    color(1, 0),
+    color(1, 0),
+    color(1, 0),
+    color(1, 0),
+    color(1, 0),
+    color(1, 0),
+    color(1, 0),
+    color(1, 0),
+    color(1, 0),
+    color(1, 0),
+    color(1, 0),
+    color(1, 0),
+    color(1, 0),
+    color(1, 0),
+    color(1, 0),
+    color(1, 0),
+    color(1, 0),
     color(1, 0)
   };
 
@@ -47,12 +47,12 @@ class TriangleNoise extends VisualItem {
         triangle(XPos, YPos, XPos, YPos+Spacing, XPos+Spacing, YPos+Spacing);
         fill(mycolors [int(random(mycolors.length))]);
         triangle(XPos, YPos, XPos+Spacing, YPos, XPos+Spacing, YPos+Spacing);
-  
+
         fill(mycolors [int(random(mycolors.length))]);
         triangle(XPos+boxSize/2, YPos+boxSize/2, XPos+boxSize/2, YPos+Spacing+boxSize/2, XPos+Spacing+boxSize/2, YPos+Spacing+boxSize/2);
         fill(mycolors [int(random(mycolors.length))]);
         triangle(XPos+boxSize/2, YPos+boxSize/2, XPos+Spacing+boxSize/2, YPos+boxSize/2, XPos+Spacing+boxSize/2, YPos+Spacing+boxSize/2);
-  
+
         fill(mycolors [int(random(mycolors.length))]);
         triangle(XPos+boxSize/2, YPos+Spacing, XPos+Spacing+boxSize/2, YPos+Spacing, XPos+Spacing+boxSize/2, YPos);
         fill(mycolors [int(random(mycolors.length))]);
@@ -68,7 +68,7 @@ class TriangleNoise extends VisualItem {
     intensity = 0;
   }
 
-  void ping() {
+  void ping(int velocity) {
     intensity = 255;
   }
 }

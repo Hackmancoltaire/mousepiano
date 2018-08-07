@@ -117,7 +117,7 @@ class VZWord extends VisualItem {
     word = myWord;
   }
 
-  void ping() {
+  void ping(int velocity) {
     active = true;
   }
 

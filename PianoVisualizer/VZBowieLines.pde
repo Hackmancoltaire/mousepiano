@@ -33,7 +33,7 @@ class VZBowieLines extends Visualizer {
     }
   }
 
-  void ping(int itemId) {
+  void ping(int itemId, int velocity) {
     visualItems[itemId].ping();
   }
 

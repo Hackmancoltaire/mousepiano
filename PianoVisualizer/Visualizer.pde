@@ -17,8 +17,8 @@ class Visualizer {
 	 }
   }
 
-  void ping(int itemId) {
-    visualItems[itemId].ping();
+  void ping(int itemId, int velocity) {
+    visualItems[itemId].ping(velocity);
   }
 
   void pong(int itemId) {

@@ -21,8 +21,8 @@ class VZWisp extends Visualizer {
     visualItems[itemId].update();
   }
 
-  void ping(int itemId) {
-    visualItems[itemId].ping();
+  void ping(int itemId, int velocity) {
+    visualItems[itemId].ping(velocity);
   }
 
   void pong(int itemId) {
@@ -56,7 +56,7 @@ class VZWispParticle extends VisualItem {
     itemColor = myColor;
   }
 
-  void ping() {
+  void ping(int velocity) {
     drawing = true;
   }
 

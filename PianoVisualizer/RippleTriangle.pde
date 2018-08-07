@@ -59,7 +59,7 @@ class RippleTriangle extends VisualItem {
     }
   }
 
-  void ping() {
+  void ping(int velocity) {
     intensity = 255;
   }
 

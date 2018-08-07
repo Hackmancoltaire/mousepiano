@@ -23,7 +23,7 @@ class BouncingBall extends VisualItem {
     }
   }
 
-  void ping() {
+  void ping(int velocity) {
     if (y >= screenHeight) {
       y = 0;
     } else {

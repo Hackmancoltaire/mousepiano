@@ -46,7 +46,7 @@ class VZCosmos extends Visualizer {
     }
   }
 
-  void ping(int itemId) {
+  void ping(int itemId, int velocity) {
     active++;
   }
 

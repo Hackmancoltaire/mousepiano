@@ -30,7 +30,7 @@ class ColorCube extends VisualItem {
     }
   }
 
-  void ping() {
+  void ping(int velocity) {
     z += intensity;
   }
 

@@ -30,7 +30,7 @@ class LineTree extends VisualItem {
       if (x+1 != yvalues.length) {
         x2 = spacing * (x+1);
 
-        if (keyIndex % 2 == 0) { 
+        if (keyIndex % 2 == 0) {
           y1 = screenHeight/2-yvalues[x];
           y2 = screenHeight/2-yvalues[x+1];
         } else {
@@ -42,17 +42,17 @@ class LineTree extends VisualItem {
         float c1y = y1;
 
         float c2x = x1;
-        float c2y = y2; 
+        float c2y = y2;
 
         bezier(x1, y1, c1x, c1y, c2x, c2y, x2, y2);
       }
       else {
-        if (keyIndex % 2 == 0) { 
+        if (keyIndex % 2 == 0) {
           y1 = screenHeight/2-yvalues[x];
         } else {
           y1 = screenHeight/2+yvalues[x];
         }
-        
+
         line(x1, y1, width, y1);
       }
     }
@@ -61,23 +61,23 @@ class LineTree extends VisualItem {
       increase = (screenHeight/2)-1;
     } else {
       increase -= 8;
-      
+
       if (increase < 0) {
          increase = 0;
-      } 
+      }
     }
-    
+
     shiftWave(increase);
   }
 
-  void ping() {
+  void ping(int velocity) {
     increase += intensity;
   }
 
   void shiftWave(float newValue) {
     if (newValue > screenHeight/2) {
       newValue = screenHeight/2;
-    }  
+    }
 
     for (int i = 0; i < yvalues.length; i++) {
       if (i+1 < yvalues.length) {

@@ -22,7 +22,7 @@ class WallDot {
   color dotColor;
 
   WallDot(int keyId, int myColor) {
-    pos = new PVector(random(width / keys) + (keyId * (width / keys)), 
+    pos = new PVector(random(width / keys) + (keyId * (width / keys)),
       random(height/2));
     //colorMode(RGB,255);
 
@@ -69,7 +69,7 @@ class VIRippleDots extends VisualItem {
     }
   }
 
-  void ping() {
+  void ping(int velocity) {
     intensity = 30;
   }
 }

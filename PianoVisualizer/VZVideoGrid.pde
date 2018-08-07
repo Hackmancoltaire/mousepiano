@@ -57,7 +57,7 @@ class VZVideo extends VisualItem {
     }
   }
 
-  void ping() {
+  void ping(int velocity) {
     video.loop();
     video.volume(0);
   }

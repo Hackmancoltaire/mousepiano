@@ -19,7 +19,7 @@ class Ring extends VisualItem {
 	    strokeWeight(11);
 	    ellipse(width/2, screenHeight/2, outerRing, outerRing);
 	}
-	
+
     if (intensity <= 0) {
       intensity = 0;
     } else {
@@ -29,7 +29,7 @@ class Ring extends VisualItem {
     }
   }
 
-  void ping() {
+  void ping(int velocity) {
     intensity = 255;
   }
 }

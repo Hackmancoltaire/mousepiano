@@ -53,7 +53,7 @@ class VZPointTriangle extends Visualizer {
     rect(0, 0, width, height);
   }
 
-  void ping(int itemId) {
+  void ping(int itemId, int velocity) {
   }
 
   void pong(int itemId) {

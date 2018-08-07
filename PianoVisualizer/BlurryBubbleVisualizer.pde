@@ -45,8 +45,8 @@ class BlurryBubbleVisualizer extends Visualizer {
     }
   }
 
-  void ping(int itemId) {
-    visualItems[itemId].ping();
+  void ping(int itemId, int velocity) {
+    visualItems[itemId].ping(velocity);
   }
 
   void pong(int itemId) {
@@ -84,7 +84,7 @@ class BlurryBubble extends VisualItem {
     }
   }
 
-  void ping() {
+  void ping(int velocity) {
     currentLife = 0;
 
     if (y >= screenHeight) {

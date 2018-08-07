@@ -7,7 +7,7 @@ class VisualItem {
   void update() {
   }
 
-  void ping() {
+  void ping(int velocity) {
   }
 
   void pong() {

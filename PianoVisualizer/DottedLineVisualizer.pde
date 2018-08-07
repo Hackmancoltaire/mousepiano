@@ -55,7 +55,7 @@ class Dot extends VisualItem {
     ellipse(x, y, size, size);
   }
 
-  void ping() {
+  void ping(int velocity) {
     if (isEven) {
       y = y - (screenHeight * (intensity * 10));
     } else {

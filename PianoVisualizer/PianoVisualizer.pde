@@ -24,8 +24,8 @@ int cycleTime = 60;
 int lastCycle = millis();
 boolean cycleVisualizers = true;
 
-int currentVisualization = 17;
-int totalVisualizers = 17;
+int currentVisualization = 19;
+int totalVisualizers = 19;
 Visualizer currentVisualizer;
 
 boolean sustain = false;
@@ -184,7 +184,12 @@ void setupVisualizer(int newCurrentID) {
 	case 17:
 		currentVisualizer = new VZGrowBar(colorSets[currentColorSet]);
 		break;
-	// case xx:
+	case 18:
+		currentVisualizer = new VZWakanda(colorSets[currentColorSet]);
+		break;
+	case 19:
+		currentVisualizer = new VZMatrix(colorSets[currentColorSet]);
+		break;	// case xx:
 	// 	currentVisualizer = new VZSpiralWeb(colorSets[currentColorSet]);
 	// 	break;
     //case xx:

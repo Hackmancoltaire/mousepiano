@@ -128,7 +128,7 @@ class VZWord extends VisualItem {
   void update() {
     if (active) {
       fill(itemColor);
-      textSize(64);
+	  textFont(standardFont, 64);
       int evenWords = 0;
       int oddWords = 0;
       int position = 0;
